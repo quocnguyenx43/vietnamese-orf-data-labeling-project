@@ -62,7 +62,7 @@ def sign_up():
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user, remember=True)
-            send_mail(email=email, username=username, password=password1)
+            # send_mail(email=email, username=username, password=password1)
             flash('Thông tin tài khoản đã được gửi đến admin, xin chờ phản hồi.', category='success')
             return redirect(url_for('views.home'))
 
