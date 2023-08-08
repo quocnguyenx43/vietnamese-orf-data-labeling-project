@@ -17,6 +17,18 @@
 
     <style>
     /* Position the logout button below the greeting */
+        body {
+            min-height: 3000px;
+        }
+        footer {
+            position: absolute; /* Position the footer absolutely at the bottom of the body. */
+            left: 0; /* Align the footer to the left edge of the body. */
+            bottom: 0; /* Position the footer at the bottom of the body. */
+            width: 100%; /* Make the footer take the full width of the body. */
+            background-color: #343a40; /* Set the background color of the footer (adjust as needed). */
+            color: #fff; /* Set the text color of the footer (adjust as needed). */
+            padding: 10px; /* Add padding to the footer (adjust as needed). */
+        }
         #logout {
             display: none;
             position: absolute;
@@ -119,6 +131,11 @@
     <!-- Content -->
     <br>
     <div class="container">{% block content %} {% endblock %}</div>
+
+    <!-- Copyright -->
+    <footer class="navbar navbar-dark bg-dark text-center py-2" style="margin-top: 50px;">
+        &copy; 2023 - Nhóm 5guysin1group - Ứng dụng labeling cho bài toán phát hiện tin tuyển dụng warning.
+    </footer>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"

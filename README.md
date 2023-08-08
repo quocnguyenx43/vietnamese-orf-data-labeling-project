@@ -1,8 +1,8 @@
-env\Scripts\activate
+env\Scripts\activate <br>
 pip3 freeze > requirements.txt
 
-tạo repo github
-heroku login
-heroku create <app-name>
-git push heroku main
-heroku open
+tạo repo github <br>
+heroku login <br>
+heroku create 'app-name' <br>
+git push heroku main <br>
+heroku open <br>
