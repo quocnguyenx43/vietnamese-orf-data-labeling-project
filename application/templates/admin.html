@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}QUẢN TRỊ ADMIN{% endblock %}
+{% block content %}
+<div style="text-align: center;">
+    <h1>QUẢN TRỊ ADMIN</h1>
+    <a href="/view-data" class="view-data" class="btn btn-success">XEM DATA</a>
+</div>
+
+<h1>User List</h1>
+<table class="table user-list">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Email</th>
+            <th>Username</th>
+            <th>Is Admin</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ "Yes" if user.is_admin else "No" }}</td>
+                <td>
+                    <button class="btn btn-primary btn-sm edit-button" data-id="{{ user.id }}">Edit</button></td>
+                <td>
+                    <form method="post" action="{{ url_for('views.remove_user', user_id=user.id) }}">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h1>Add User</h1>
+<form method="POST" action="{{ url_for('views.add_user') }}">
+    <div class="form-group">
+        <label for="email">Địa chỉ Email</label>
+        <input type="email" class="form-control" id="email" name="email" placeholder="Nhập Email" />
+    </div>
+    <div class="form-group">
+        <label for="username">Nhập tên tài khoản</label>
+        <input type="text" class="form-control" id="username" name="username" placeholder="Nhập tên tài khoản" />
+    </div>
+    <div class="form-group">
+        <label for="password">Mật khẩu</label>
+        <input type="password" class="form-control" id="password" name="password" placeholder="Nhập mật khẩu" />
+    </div>
+    <div class="form-group">
+        <label for="is_admin">Admin </label>
+        <input type="checkbox" class="form-control" id="is_admin" name="is_admin"/>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+<br>
+<h1>Upload CSV data</h1>
+<h3>File hiện tại: </h3> 
+<strong class="btn-light">{{ files }}</strong>
+<form method="post" action="{{ url_for('views.upload_csv') }}" enctype="multipart/form-data">
+    <input type="file" name="csv_file" accept=".csv">
+    <button type="submit" class="btn btn-primary">Upload CSV data</button>
+</form>
+
+{% endblock %}

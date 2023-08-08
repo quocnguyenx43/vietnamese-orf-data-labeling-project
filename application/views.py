@@ -1,18 +1,146 @@
 from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
 from flask_login import login_required, current_user
-from .models import Annotation, Recruitment
+from .models import User, Annotation, Recruitment
 from . import db
 import json
+from werkzeug.security import generate_password_hash
+from .utils import populate_data
 
 views = Blueprint('views', __name__)
 
 
+# Home
 @views.route('/')
 @views.route('/home/')
 def home():
     return render_template("home.html", user=current_user)
 
+# Admin
+@views.route('/admin/', methods=['GET', 'POST'])
+@login_required
+def admin():
+    # Check if the user is admin or not
+    if not current_user.is_admin:
+        return "Không có quyền truy cập vào trang quản trị admin.", 403
 
+    import os
+    all_users = User.query.all()
+    current_files = os.listdir('data/')
+
+    return render_template(
+        "admin.html",
+        user=current_user,
+        users=all_users,
+        files=current_files
+    )
+
+# Admin: Add user
+@views.route('/admin/add_user', methods=['GET', 'POST'])
+@login_required
+def add_user():
+    if not current_user.is_admin:
+        return "Không có quyền truy cập vào trang quản trị admin.", 403
+
+    if request.method == 'POST':
+        email = request.form.get('email')
+        username = request.form.get('username')
+        password = request.form.get('password')
+        is_admin = bool(request.form.get('is_admin'))
+
+        new_user = User(
+            email=email,
+            username=username,
+            password=generate_password_hash(password, method='sha256'),
+            is_admin=is_admin
+        )
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash('Thêm user thành công.', 'success')
+        return redirect(url_for('views.admin'))  # Redirect back to the user list page
+
+    return render_template('views.admin')
+
+
+# Admin: Remove user
+@views.route('/admin/remove_user/<int:user_id>', methods=['POST', 'DELETE'])
+@login_required
+def remove_user(user_id):
+    if not current_user.is_admin:
+        return "Không có quyền truy cập vào trang quản trị admin.", 403
+
+    if request.method in ['POST', 'DELETE']:
+        user = User.query.get(user_id)
+        if user:
+            db.session.delete(user)
+            db.session.commit()
+            flash('Xóa user thành công.', 'success')
+        else:
+            flash('User không tồn tại.', 'danger')
+
+        return redirect(url_for('views.admin'))
+
+
+# Upload CSV data
+@views.route('/admin/upload_csv', methods=['POST'])
+@login_required
+def upload_csv():
+    if not current_user.is_admin:
+        return "Không có quyền truy cập vào trang quản trị admin.", 403
+
+    if request.method == 'POST':
+        csv_file = request.files['csv_file']
+        if csv_file and csv_file.filename.endswith('.csv'):
+            # Remove all
+            import os
+            dir = 'data/'
+            for f in os.listdir(dir):
+                os.remove(os.path.join(dir, f))
+
+            # Save
+            filename = csv_file.filename
+            csv_file.save('data/' + filename)
+            flash('Upload thành công.', 'success')
+
+            # Populate
+            import pandas as pd
+            populate_data(db, pd.read_csv('data/' + filename))
+            flash('Populate thành công.', 'success')
+            
+        else:
+            flash('File không hợp lệ.', 'danger')
+
+    return redirect(url_for('views.admin'))
+
+
+# View Data
+@views.route('/view-data', methods=['GET', 'POST'])
+@login_required
+def view_data():
+    if not current_user.is_admin:
+        return "Không có quyền truy cập vào trang quản trị admin.", 403
+
+    data = User.query.all()
+    if request.method == 'POST':
+        table_selected = request.form['table-select']
+        if table_selected == 'recruitment':
+            data = Recruitment.query.all()
+        elif table_selected == 'annotation':
+            data = Annotation.query.all()
+
+    # Convert into list of dict
+    data = [d.__dict__ for d in data]
+    for d in data:
+        d.pop('_sa_instance_state', None)
+
+    return render_template(
+        "view_data.html",
+        user=current_user,
+        data=data,
+    )
+
+
+# Annotate
 @views.route('/annotate/', methods=['GET', 'POST'])
 @login_required
 def annotate():

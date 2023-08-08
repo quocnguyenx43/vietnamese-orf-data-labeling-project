@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}XEM DATA{% endblock %}
+{% block content %}
+<style>
+    /* Add a CSS class for ellipsis */
+    .ellipsis {
+        max-width: 100px; /* Adjust the width as needed */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+
+<!-- Select -->
+<form method="POST">
+    <label for="table-select">Select an option:</label>
+    <select id="table-select" name="table-select">
+        <option value="user" selected>User</option>
+        <option value="recruitment">Recruitment</option>
+        <option value="annotation">Annotation</option>
+    </select>
+    <br>
+    <button type="submit">Submit</button>
+</form>
+
+<!-- Data -->
+<div style="overflow-x: auto">
+    <table id="data" class="table table-condensed table-bordered table-hover table-striped">
+        <thead>
+            <tr>
+                {% if data %}
+                    {% for key in data[0].keys() %}
+                        <th><span style="font-size: 12px;" data-toggle="tooltip" data-placement="top" title="{{ key }}">{{ key }}</span></th>
+                    {% endfor %}
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% if data %}
+                {% for item in data %}
+                    <tr>
+                        {% for key in data[0].keys() %}
+                            <td tabindex="1"><span style="font-size: 12px;" title="{{ item[key] }}" class="ellipsis">{{ item[key] }}</span></td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

@@ -7,7 +7,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 auth = Blueprint('auth', __name__)
 
-
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -63,31 +62,35 @@ def sign_up():
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user, remember=True)
-            flash('Thông tin tài khoản đã được gửi đến server, vui lòng chờ phản hồi từ admin!', category='success')
+            # send_mail(email=email, username=username, password=password1)
+            flash('Thông tin tài khoản đã được gửi đến admin, xin chờ phản hồi.', category='success')
             return redirect(url_for('views.home'))
 
     return render_template("sign_up.html", user=current_user)
 
 
 def send_mail(email, username, password):
-    pass
+    from email.message import EmailMessage
+    import smtplib
 
-    # import smtplib
-    # from email.mime.text import MIMEText
-    # from email.mime.multipart import MIMEMultipart
+    email_sender = 'hairapviet@gmail.com'
+    email_password = 'yawxkeuwkcrcyahe'
+    email_receiver = 'quocnguyenx43@gmail.com'
 
-    # # Your email credentials
-    # sender_email = "your_email@gmail.com"  # Replace with your sender email address
-    # sender_password = "your_password"  # Replace with your sender email password
+    subject = 'CREATING LABELING ACCOUNT REQUEST'
 
-    # # Recipient email address
-    # recipient_email = "20521813@gm.uit.edu.vn"  # Replace with the recipient's email address
+    body = "Request to create new account\n"
+    body += "Email: " + email + "\n"
+    body += "Username: " + username + "\n"
+    body += "Password: " + password + "\n\n"
 
-    # # Email subject and body
-    # subject = "ĐĂNG KÝ TÀI KHOẢN LABELING"
-    # body = f"""
-    #     Yêu cầu đăng ký tài khoản
-    #     Email: {email},
-    #     Useranme: {username},
-    #     Password: {password},
-    # """
+    em = EmailMessage()
+    em['From'] = email_sender
+    em['To'] = email_receiver
+    em['Subject'] = subject
+    em.set_content(body)
+
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(email_sender, email_password)
+    server.sendmail(email_sender, email_receiver, em.as_string())
