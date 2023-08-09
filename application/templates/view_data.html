@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}XEM DATA{% endblock %}
 {% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
     /* Add a CSS class for ellipsis */
     .ellipsis {
@@ -20,7 +21,8 @@
         <option value="annotation">Annotation</option>
     </select>
     <br>
-    <button type="submit">Submit</button>
+    <button type="submit" name="action" value="view">Xem</button>
+    <button type="submit" name="action" value="download">Tải dữ liệu</button>
 </form>
 
 <!-- Data -->
@@ -49,4 +51,5 @@
     </table>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}

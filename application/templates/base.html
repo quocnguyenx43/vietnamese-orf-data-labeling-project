@@ -75,7 +75,7 @@
         </div>
         {% if user.is_authenticated %}
         <a class="nav-item nav-link" id="logout" href="/logout">ĐĂNG XUẤT</a>
-        <p id="greeting">Hi <strong>{{ user.username }}  </strong><i class="fas fa-chevron-down" id="arrow-down"></i></p>
+        <p id="greeting" class="text-white">Hi <strong>{{ user.username }}  </strong><i class="fas fa-chevron-down" id="arrow-down"></i></p>
         <script>
             // Get the elements
             const greetingElement = document.getElementById("greeting");

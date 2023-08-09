@@ -4,7 +4,7 @@ from .models import User, Annotation, Recruitment
 from . import db
 import json
 from werkzeug.security import generate_password_hash
-from .utils import populate_data
+from .utils import populate_data, convert_to_csv, send_csv_as_download
 
 views = Blueprint('views', __name__)
 
@@ -123,10 +123,16 @@ def view_data():
     data = User.query.all()
     if request.method == 'POST':
         table_selected = request.form['table-select']
+        button_clicked = request.form.get('action')
+
         if table_selected == 'recruitment':
             data = Recruitment.query.all()
         elif table_selected == 'annotation':
             data = Annotation.query.all()
+
+        if button_clicked == 'download':
+            csv_data = convert_to_csv(data)
+            return send_csv_as_download(csv_data, f'{table_selected}_downloaded.csv')
 
     # Convert into list of dict
     data = [d.__dict__ for d in data]

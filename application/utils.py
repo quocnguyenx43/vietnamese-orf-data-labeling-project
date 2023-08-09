@@ -1,4 +1,6 @@
-
+import csv
+import io
+from flask import Flask, render_template, request, Response
 
 def create_admin(db):
     from .models import User
@@ -58,3 +60,36 @@ def populate_data(db, df):
         )
         db.session.add(recruitment)
     db.session.commit()
+
+def convert_to_csv(data):
+    csv_data = []
+    
+    if data:
+        # Get the fields from the first item in the list
+        fields = list(data[0].__dict__.keys())
+        
+        # Exclude private and special attributes
+        fields = [field for field in fields if not field.startswith('_') and field != 'metadata']
+        
+        # Append headers to the CSV data
+        csv_data.append(fields)
+        
+        # Iterate through each item and extract field values
+        for item in data:
+            row = [getattr(item, field) for field in fields]
+            csv_data.append(row)
+        
+    return csv_data
+
+
+def send_csv_as_download(data, filename):
+    output = io.StringIO()  # Create a temporary file-like object
+    
+    csv_writer = csv.writer(output)
+    csv_writer.writerows(data)  # Write the data to the file-like object
+    
+    # Create the Response object and set appropriate headers
+    response = Response(output.getvalue(), content_type='text/csv')
+    response.headers['Content-Disposition'] = f'attachment; filename="{filename}"'
+    
+    return response
