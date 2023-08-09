@@ -11,4 +11,3 @@
 - Step 4: Create a `app-name` on Heroku
 - Step 5: `git push heroku main`
 - Step 6: `heroku open`
-tạo repo github <br>
