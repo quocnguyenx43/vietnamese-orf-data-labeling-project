@@ -1,7 +1,9 @@
+from flask import Flask, render_template, request, Response
 import csv
 import io
-from flask import Flask, render_template, request, Response
 
+
+# Create admin account if admin account doesn't exists
 def create_admin(db):
     from .models import User
     from werkzeug.security import generate_password_hash
@@ -10,12 +12,13 @@ def create_admin(db):
         admin = User(
             email="",
             username='admin',
-            password=generate_password_hash('adminteamlabeling', method='sha256'),
+            password=generate_password_hash('adminadmin', method='sha256'),
             is_admin=True
         )
         db.session.add(admin)
         db.session.commit()
 
+# Populate data from `df`
 def populate_data(db, df):
     from .models import Recruitment
     db.session.query(Recruitment).delete()
@@ -61,6 +64,8 @@ def populate_data(db, df):
         db.session.add(recruitment)
     db.session.commit()
 
+
+# Convert `db Query` into csv file
 def convert_to_csv(data):
     csv_data = []
     
@@ -82,6 +87,7 @@ def convert_to_csv(data):
     return csv_data
 
 
+# Send csv as download file
 def send_csv_as_download(data, filename):
     output = io.StringIO()  # Create a temporary file-like object
     
@@ -93,3 +99,109 @@ def send_csv_as_download(data, filename):
     response.headers['Content-Disposition'] = f'attachment; filename="{filename}"'
     
     return response
+
+
+def send_mail(email, username, password):
+    from email.message import EmailMessage
+    import smtplib
+
+    email_sender = 'hairapviet@gmail.com'
+    email_password = 'yawxkeuwkcrcyahe'
+    email_receiver = 'quocnguyenx43@gmail.com'
+
+    subject = 'CREATING LABELING ACCOUNT REQUEST'
+
+    body = "Request to create new account\n"
+    body += "Email: " + email + "\n"
+    body += "Username: " + username + "\n"
+    body += "Password: " + password + "\n\n"
+
+    em = EmailMessage()
+    em['From'] = email_sender
+    em['To'] = email_receiver
+    em['Subject'] = subject
+    em.set_content(body)
+
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(email_sender, email_password)
+    server.sendmail(email_sender, email_receiver, em.as_string())
+
+
+# Annotation handle
+def get_recruitment_data(idx):
+    from .models import Recruitment
+    recruitment = Recruitment.query.filter_by(index=idx).first()
+    aspects = {
+        'title_aspect': ['title', 'job_type'],
+        'desc_aspect': ['body', 'education', 'experience', 'benefit', 'certification'],
+        'company_aspect': ['company_name', 'location', 'phone', 'contact_name'],
+        'poster_aspect': ['u_user_id', 'u_full_name', 'u_phone', 'u_url', 'uploaded_date', 'submission_expired', 'u_created_date', 'is_anonymous', 'is_recruiters'],
+        'other_aspect': ['id', 'url', 'vacancy', 'total_images', 'contact_type', 'salary_type', 'min_salary', 'max_salary', 'gender', 'year_of_birth', 'age', 'min_age', 'max_age']
+    }
+    recruitment = {col.name: getattr(recruitment, col.name) for col in recruitment.__table__.columns}
+    data = {}
+    for key, cols in aspects.items():
+        data[key] = {}
+        for col in cols:
+            data[key][col] = recruitment[col]
+
+    return data
+
+def get_annotation_data(r_idx, u_idx):
+    from .models import Annotation
+    annotation = Annotation.query.filter_by(recruiment_id=r_idx, user_id=u_idx).first()
+    try:
+        data = {col.name: getattr(annotation, col.name) for col in annotation.__table__.columns}
+    except:
+        return None
+
+    return data
+
+
+def get_form_data(aspects, form):
+    label = form.get('labeling_select')
+    explanation = request.form.get('explanation')
+
+    aspect_level = {}
+    
+    # Loop through each aspect in the form
+    for aspect in aspects:
+        aspect_value = request.form.get(aspect)
+        aspect_level[aspect] = aspect_value
+    
+
+    return aspect_level, label, explanation
+
+
+def insert_annotation(r_id, u_id, aspect_level, label, explanation, db):
+    from .models import Annotation
+    from flask import flash
+
+    existing_annotation = Annotation.query.filter_by(recruiment_id=r_id, user_id=u_id).first()
+
+    if existing_annotation:
+        # If an annotation exists, update its fields
+        existing_annotation.title_aspect = aspect_level['title_aspect']
+        existing_annotation.desc_aspect = aspect_level['desc_aspect']
+        existing_annotation.company_aspect = aspect_level['company_aspect']
+        existing_annotation.poster_aspect = aspect_level['poster_aspect']
+        existing_annotation.other_aspect = aspect_level['other_aspect']
+        existing_annotation.label = label
+        existing_annotation.explanation = explanation
+        flash('Annotation updated!', category='success')
+    else:
+        new_annotation = Annotation(
+            recruiment_id=r_id,
+            user_id=u_id,
+            title_aspect=aspect_level['title_aspect'],
+            desc_aspect=aspect_level['desc_aspect'],
+            company_aspect=aspect_level['company_aspect'],
+            poster_aspect=aspect_level['poster_aspect'],
+            other_aspect=aspect_level['other_aspect'],
+            label=label,
+            explanation=explanation
+        )
+        db.session.add(new_annotation)
+        flash('Annotation added!', category='success')
+    db.session.commit()

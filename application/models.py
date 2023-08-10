@@ -1,17 +1,22 @@
+# Define all models
 from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
 
 
+# User
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(150), unique=True)
     username = db.Column(db.String(20), unique=True)
     password = db.Column(db.String(150))
     is_admin = db.Column(db.Boolean, default=False)
+
+    # Related to Annotation
     annotations = db.relationship('Annotation')
 
 
+# Recruitment
 class Recruitment(db.Model):
     index = db.Column(db.Integer, primary_key=True) # Index
     id = db.Column(db.Integer, unique=True) # Recruitment ID
@@ -49,10 +54,12 @@ class Recruitment(db.Model):
     u_url = db.Column(db.String(100))
     u_ad_id = db.Column(db.Integer)
     u_created_date = db.Column(db.String(100))
+
+    # Related to Annotation
     annotations = db.relationship('Annotation')
 
 
-
+# Annotation
 class Annotation(db.Model):
     recruiment_id = db.Column(db.Integer, db.ForeignKey('recruitment.id'), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)

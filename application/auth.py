@@ -3,16 +3,20 @@ from flask_login import login_user, login_required, logout_user, current_user
 from .models import User
 from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
+from .utils import send_mail
 
 
 auth = Blueprint('auth', __name__)
 
+
+# Login handle
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
 
+        # Check if correct information
         user = User.query.filter_by(username=username).first()
         if user:
             if check_password_hash(user.password, password):
@@ -27,6 +31,7 @@ def login():
     return render_template("login.html", user=current_user)
 
 
+# Logout handle
 @auth.route('/logout')
 @login_required
 def logout():
@@ -34,6 +39,7 @@ def logout():
     return redirect(url_for('auth.login'))
 
 
+# Sign up handle
 @auth.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
     if request.method == 'POST':
@@ -42,6 +48,7 @@ def sign_up():
         password1 = request.form.get('password')
         password2 = request.form.get('conf-password')
 
+        # Check if the information is satified
         user = User.query.filter_by(email=email).first()
         if user:
             flash('Email đã tồn tại!', category='error')
@@ -54,35 +61,10 @@ def sign_up():
         elif len(password1) < 7:
             flash('Mật khẩu tối thiểu 8 ký tự!.', category='error')
         else:
-            send_mail(email=email, username=username, password=password1)
+            # If everything is okay, send mail to admin
+            utils.send_mail(email=email, username=username, password=password1)
             flash('Thông tin tài khoản đã được gửi đến admin, xin chờ phản hồi.', category='success')
             return redirect(url_for('views.home'))
 
     return render_template("sign_up.html", user=current_user)
 
-
-def send_mail(email, username, password):
-    from email.message import EmailMessage
-    import smtplib
-
-    email_sender = 'hairapviet@gmail.com'
-    email_password = 'yawxkeuwkcrcyahe'
-    email_receiver = 'quocnguyenx43@gmail.com'
-
-    subject = 'CREATING LABELING ACCOUNT REQUEST'
-
-    body = "Request to create new account\n"
-    body += "Email: " + email + "\n"
-    body += "Username: " + username + "\n"
-    body += "Password: " + password + "\n\n"
-
-    em = EmailMessage()
-    em['From'] = email_sender
-    em['To'] = email_receiver
-    em['Subject'] = subject
-    em.set_content(body)
-
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    server.login(email_sender, email_password)
-    server.sendmail(email_sender, email_receiver, em.as_string())

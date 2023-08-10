@@ -4,18 +4,22 @@ from .models import User, Annotation, Recruitment
 from . import db
 import json
 from werkzeug.security import generate_password_hash
-from .utils import populate_data, convert_to_csv, send_csv_as_download
+from .utils import (
+    populate_data, convert_to_csv, send_csv_as_download,
+    get_recruitment_data, get_annotation_data, get_form_data, insert_annotation
+)
 
 views = Blueprint('views', __name__)
 
 
-# Home
+# Home handle
 @views.route('/')
 @views.route('/home/')
 def home():
     return render_template("home.html", user=current_user)
 
-# Admin
+
+# Admin page handle
 @views.route('/admin/', methods=['GET', 'POST'])
 @login_required
 def admin():
@@ -34,10 +38,11 @@ def admin():
         files=current_files
     )
 
-# Admin: Add user
+# Admin: Add user handle
 @views.route('/admin/add_user', methods=['GET', 'POST'])
 @login_required
 def add_user():
+    # Check if the user is admin or not
     if not current_user.is_admin:
         return "Không có quyền truy cập vào trang quản trị admin.", 403
 
@@ -47,6 +52,7 @@ def add_user():
         password = request.form.get('password')
         is_admin = bool(request.form.get('is_admin'))
 
+        # Add new user to db
         new_user = User(
             email=email,
             username=username,
@@ -55,17 +61,17 @@ def add_user():
         )
         db.session.add(new_user)
         db.session.commit()
-
         flash('Thêm user thành công.', 'success')
-        return redirect(url_for('views.admin'))  # Redirect back to the user list page
+        return redirect(url_for('views.admin'))
 
     return render_template('views.admin')
 
 
-# Admin: Remove user
+# Admin: Remove user handle
 @views.route('/admin/remove_user/<int:user_id>', methods=['POST', 'DELETE'])
 @login_required
 def remove_user(user_id):
+    # Check if the user is admin or not
     if not current_user.is_admin:
         return "Không có quyền truy cập vào trang quản trị admin.", 403
 
@@ -81,28 +87,29 @@ def remove_user(user_id):
         return redirect(url_for('views.admin'))
 
 
-# Upload CSV data
+# Admin: Upload CSV data handle
 @views.route('/admin/upload_csv', methods=['POST'])
 @login_required
 def upload_csv():
+    # Check if the user is admin or not
     if not current_user.is_admin:
         return "Không có quyền truy cập vào trang quản trị admin.", 403
 
     if request.method == 'POST':
         csv_file = request.files['csv_file']
         if csv_file and csv_file.filename.endswith('.csv'):
-            # Remove all
+            # Remove all file in the current dir
             import os
             dir = 'data/'
             for f in os.listdir(dir):
                 os.remove(os.path.join(dir, f))
 
-            # Save
+            # Save file as current csv_file
             filename = csv_file.filename
             csv_file.save('data/' + filename)
             flash('Upload thành công.', 'success')
 
-            # Populate
+            # Populate data into db
             import pandas as pd
             populate_data(db, pd.read_csv('data/' + filename))
             flash('Populate thành công.', 'success')
@@ -113,10 +120,11 @@ def upload_csv():
     return redirect(url_for('views.admin'))
 
 
-# View Data
+# Admin: View Data handle
 @views.route('/view-data', methods=['GET', 'POST'])
 @login_required
 def view_data():
+    # Check if the user is admin or not
     if not current_user.is_admin:
         return "Không có quyền truy cập vào trang quản trị admin.", 403
 
@@ -146,7 +154,7 @@ def view_data():
     )
 
 
-# Annotate
+# Annotate handle
 @views.route('/annotate/', methods=['GET', 'POST'])
 @login_required
 def annotate():
@@ -179,7 +187,7 @@ def annotate():
     if request.method == 'POST':
         aspects = recruitment_data.keys()
         aspect_level, label, explanation = get_form_data(aspects, request.form)
-        insert_annotation(rcmt_id, current_user.id, aspect_level, label, explanation)
+        insert_annotation(rcmt_id, current_user.id, aspect_level, label, explanation, db)
         flash(f'Gán / cập nhật nhãn mẫu dữ liệu số {rcmt_idx} thành công, chuyển tiếp đến mẫu kế tiếp!', category='success')
         return redirect(url_for('views.annotate', index=int(rcmt_idx) + 1))
     
@@ -193,76 +201,3 @@ def annotate():
         rcmt_data=recruitment_data,
         ann_data=annotation_data
     )
-
-
-def get_recruitment_data(idx):
-    recruitment = Recruitment.query.filter_by(index=idx).first()
-    aspects = {
-        'title_aspect': ['title', 'job_type'],
-        'desc_aspect': ['body', 'education', 'experience', 'benefit', 'certification'],
-        'company_aspect': ['company_name', 'location', 'phone', 'contact_name'],
-        'poster_aspect': ['u_user_id', 'u_full_name', 'u_phone', 'u_url', 'uploaded_date', 'submission_expired', 'u_created_date', 'is_anonymous', 'is_recruiters'],
-        'other_aspect': ['id', 'url', 'vacancy', 'total_images', 'contact_type', 'salary_type', 'min_salary', 'max_salary', 'gender', 'year_of_birth', 'age', 'min_age', 'max_age']
-    }
-    recruitment = {col.name: getattr(recruitment, col.name) for col in recruitment.__table__.columns}
-    data = {}
-    for key, cols in aspects.items():
-        data[key] = {}
-        for col in cols:
-            data[key][col] = recruitment[col]
-
-    return data
-
-def get_annotation_data(r_idx, u_idx):
-    annotation = Annotation.query.filter_by(recruiment_id=r_idx, user_id=u_idx).first()
-    try:
-        data = {col.name: getattr(annotation, col.name) for col in annotation.__table__.columns}
-    except:
-        return None
-
-    return data
-
-
-def get_form_data(aspects, form):
-    label = form.get('labeling_select')
-    explanation = request.form.get('explanation')
-
-    aspect_level = {}
-    
-    # Loop through each aspect in the form
-    for aspect in aspects:
-        aspect_value = request.form.get(aspect)
-        aspect_level[aspect] = aspect_value
-    
-
-    return aspect_level, label, explanation
-
-
-def insert_annotation(r_id, u_id, aspect_level, label, explanation):
-    existing_annotation = Annotation.query.filter_by(recruiment_id=r_id, user_id=u_id).first()
-
-    if existing_annotation:
-        # If an annotation exists, update its fields
-        existing_annotation.title_aspect = aspect_level['title_aspect']
-        existing_annotation.desc_aspect = aspect_level['desc_aspect']
-        existing_annotation.company_aspect = aspect_level['company_aspect']
-        existing_annotation.poster_aspect = aspect_level['poster_aspect']
-        existing_annotation.other_aspect = aspect_level['other_aspect']
-        existing_annotation.label = label
-        existing_annotation.explanation = explanation
-        flash('Annotation updated!', category='success')
-    else:
-        new_annotation = Annotation(
-            recruiment_id=r_id,
-            user_id=u_id,
-            title_aspect=aspect_level['title_aspect'],
-            desc_aspect=aspect_level['desc_aspect'],
-            company_aspect=aspect_level['company_aspect'],
-            poster_aspect=aspect_level['poster_aspect'],
-            other_aspect=aspect_level['other_aspect'],
-            label=label,
-            explanation=explanation
-        )
-        db.session.add(new_annotation)
-        flash('Annotation added!', category='success')
-    db.session.commit()
