@@ -62,7 +62,7 @@ def sign_up():
             flash('Mật khẩu tối thiểu 8 ký tự!.', category='error')
         else:
             # If everything is okay, send mail to admin
-            utils.send_mail(email=email, username=username, password=password1)
+            send_mail(email=email, username=username, password=password1)
             flash('Thông tin tài khoản đã được gửi đến admin, xin chờ phản hồi.', category='success')
             return redirect(url_for('views.home'))
 
