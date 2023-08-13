@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
+from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for, send_file
 from flask_login import login_required, current_user
 from .models import User, Annotation, Recruitment
 from . import db
@@ -152,6 +152,19 @@ def view_data():
         user=current_user,
         data=data,
     )
+
+
+# Download db
+@views.route('/download_db')
+@login_required
+def download_db():
+    # Check if the user is admin or not
+    if not current_user.is_admin:
+        return "Không có quyền truy cập vào trang quản trị admin.", 403
+    
+    from . import DB_NAME
+    db_file_path = '..\\instance\\' + DB_NAME
+    return send_file(db_file_path, as_attachment=True, download_name='your_database.db')
 
 
 # Annotate handle

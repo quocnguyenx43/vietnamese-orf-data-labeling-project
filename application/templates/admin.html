@@ -68,4 +68,11 @@
     <button type="submit" class="btn btn-primary">Upload CSV data</button>
 </form>
 
+<br>
+<h1>Download Database</h1>
+<p>Bấm nút này để download database về:</p>
+<a href="{{ url_for('views.download_db') }}" download>
+<button>Download Database</button>
+</a>
+
 {% endblock %}
