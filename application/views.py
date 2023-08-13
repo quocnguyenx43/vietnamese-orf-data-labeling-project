@@ -162,8 +162,7 @@ def download_db():
     if not current_user.is_admin:
         return "Không có quyền truy cập vào trang quản trị admin.", 403
     
-    from . import DB_NAME
-    db_file_path = '..\\instance\\' + DB_NAME
+    db_file_path = '../instance/database.db'
     return send_file(db_file_path, as_attachment=True, download_name='your_database.db')
 
 
