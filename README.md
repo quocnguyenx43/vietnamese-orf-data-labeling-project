@@ -1,7 +1,7 @@
 ## Run process:
 - Step 1: Create a virtual environment `env`
 - Step 2: `env\Scripts\activate`
-- Step 3: `pip install -r requirements`
+- Step 3: `pip install -r requirements.txt`
 - Step 4: `python app.py`
 
 ## Deploy process:

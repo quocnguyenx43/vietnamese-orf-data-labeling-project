@@ -143,6 +143,7 @@
                         <option value="negative" {% if ann_data is not none and ann_data[aspect] == 'negative' %}selected{% endif %}>negative</option>
                         <option value="neutral" {% if ann_data is not none and ann_data[aspect] == 'neutral' %}selected{% endif %}>neutral</option>
                         <option value="positive" {% if ann_data is not none and ann_data[aspect] == 'positive' %}selected{% endif %}>positive</option>
+                        <option value="not_mentioned" {% if ann_data is not none and ann_data[aspect] == 'not_mentioned' %}selected{% endif %}>not mentioned</option>
                     </select>
                 </td>
             </tr>
