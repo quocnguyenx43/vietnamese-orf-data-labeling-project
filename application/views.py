@@ -228,8 +228,14 @@ def annotate():
     if request.method == 'POST':
         aspects = recruitment_data.keys()
         aspect_level, label, explanation = get_form_data(aspects, request.form)
+
+        # Insert data thành công
         insert_annotation(rcmt_id, current_user.id, aspect_level, label, explanation, db)
         flash(f'Gán / cập nhật nhãn mẫu dữ liệu số {rcmt_idx} thành công, chuyển tiếp đến mẫu kế tiếp!', category='success')
+
+        # Backup thành công
+        upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
+        flash('Upload dabase backup từ hệ thống lên Google Drive thành công !!!')
         return redirect(url_for('views.annotate', index=int(rcmt_idx) + 1))
     
     return render_template(

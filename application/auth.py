@@ -4,7 +4,9 @@ from .models import User
 from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from .utils import send_mail
-
+from .backup_to_drive import (
+    authenticate, get_file_id_by_name, upload_file, download_file
+)
 
 auth = Blueprint('auth', __name__)
 
@@ -20,8 +22,12 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user:
             if check_password_hash(user.password, password):
-                flash('Đăng nhập thành công!', category='success')
+                # Login successfully
                 login_user(user, remember=True)
+                flash('Đăng nhập thành công!', category='success')
+                # Download backup data successfully
+                download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
+                flash('Tải dabase backup từ Google Drive về hệ thống thành công !!!')
                 return redirect(url_for('views.home'))
             else:
                 flash('Mật khẩu không chính xác, vui lòng thử lại!', category='error')
