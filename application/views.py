@@ -8,6 +8,9 @@ from .utils import (
     populate_data, convert_to_csv, send_csv_as_download,
     get_recruitment_data, get_annotation_data, get_form_data, insert_annotation
 )
+from .backup_to_drive import (
+    authenticate, get_file_id_by_name, upload_file, download_file
+)
 
 views = Blueprint('views', __name__)
 
@@ -164,6 +167,32 @@ def download_db():
     
     db_file_path = '../instance/database.db'
     return send_file(db_file_path, as_attachment=True, download_name='your_database.db')
+
+
+# Refresh db from Google Drive
+@views.route('/refresh_from_drive')
+@login_required
+def refresh_from_drive():
+    # Check if the user is admin or not
+    if not current_user.is_admin:
+        return "Không có quyền truy cập vào trang quản trị admin.", 403
+    
+    download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
+    flash('Tải dabase backup từ Google Drive về hệ thống thành công !!!')
+    return redirect(url_for('views.admin'))
+
+
+# Upload db to Google Drive
+@views.route('/upload_to_drive')
+@login_required
+def upload_to_drive():
+    # Check if the user is admin or not
+    if not current_user.is_admin:
+        return "Không có quyền truy cập vào trang quản trị admin.", 403
+    
+    upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
+    flash('Upload dabase backup từ hệ thống lên Google Drive thành công !!!')
+    return redirect(url_for('views.admin'))
 
 
 # Annotate handle

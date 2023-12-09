@@ -75,4 +75,16 @@
 <button>Download Database</button>
 </a>
 
+<br>
+<br>
+<h1>Download & Upload Database - Application Database / Google Drive</h1>
+<p>Bấm nút này để download database được backup từ Google Drive về hệ thống:</p>
+<a href="{{ url_for('views.refresh_from_drive') }}">
+<button>Download từ Google Drive về hệ thống</button>
+</a>
+<a href="{{ url_for('views.upload_to_drive') }}">
+<button>Upload từ hệ thống lên Google Drive</button>
+</a>
+
+
 {% endblock %}
