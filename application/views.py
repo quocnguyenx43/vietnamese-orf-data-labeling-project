@@ -6,11 +6,14 @@ import json
 from werkzeug.security import generate_password_hash
 from .utils import (
     populate_data, convert_to_csv, send_csv_as_download,
-    get_recruitment_data, get_annotation_data, get_form_data, insert_annotation
+    get_recruitment_data, get_annotation_data, get_form_data, insert_annotation,
+    generate_monitor
 )
 from .backup_to_drive import (
     authenticate, get_file_id_by_name, upload_file, download_file
 )
+from sqlalchemy import func
+
 
 views = Blueprint('views', __name__)
 
@@ -34,10 +37,32 @@ def admin():
     all_users = User.query.all()
     current_files = os.listdir('data/')
 
+    index_to_name = {
+        1: "admin",
+        2: "VQuoc",
+        3: "TDuong",
+        4: "BKhanh",
+        5: "HTruong",
+        6: "QNhu",
+        7: "TDinh",
+        8: "HGiang",
+        9: "BHan",
+        10: "Kiet",
+        11: "HAnh"
+    }
+    monitors_query = db.session.query(Annotation.user_id, func.count().label('record_count')).group_by(Annotation.user_id).all()
+    monitors_results = {}
+    for each in monitors_query:
+        monitors_results[index_to_name[each[0]]] = each[1]
+
+    for each in monitors_results:
+        print(each)
+
     return render_template(
         "admin.html",
         user=current_user,
         users=all_users,
+        monitors=monitors_results,
         files=current_files
     )
 

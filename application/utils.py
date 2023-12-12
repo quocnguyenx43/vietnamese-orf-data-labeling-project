@@ -65,6 +65,13 @@ def populate_data(db, df):
     db.session.commit()
 
 
+def generate_monitor(db):
+    query = f"SELECT * FROM Recruitment"
+    result = db.execute(query)
+    rows = result.fetchall()
+    print(rows)
+    
+
 # Convert `db Query` into csv file
 def convert_to_csv(data):
     csv_data = []
