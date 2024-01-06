@@ -227,7 +227,15 @@ def annotate():
     # Handle args
     rcmt_idx = request.args.get('index')
     count = Recruitment.query.count()
-    n_completed = Annotation.query.filter_by(user_id=current_user.id).count()
+    # n_completed = Annotation.query.filter_by(user_id=current_user.id).count()
+
+    merged_data_count = db.session.query(func.count()).select_from(Recruitment).join(
+        Annotation, Annotation.recruiment_id == Recruitment.id
+    ).filter(
+        Annotation.user_id == current_user.id
+    ).scalar()
+
+    n_completed = merged_data_count
 
     if rcmt_idx is None:
         return redirect(url_for('views.annotate', index=n_completed + 1))
