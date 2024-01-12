@@ -26,6 +26,8 @@ def populate_data(db, df):
     for _, row in df.iterrows():
         recruitment = Recruitment(
             id=row['id'],
+            index_for_annotator=row['index'],
+            annotator_id=row['annotator_id'],
             url=row['url'],
             total_images=row['total_images'],
             title=row['title'],
@@ -136,9 +138,9 @@ def send_mail(email, username, password):
 
 
 # Annotation handle
-def get_recruitment_data(idx):
+def get_recruitment_data(idx, cur_user_id):
     from .models import Recruitment
-    recruitment = Recruitment.query.filter_by(index=idx).first()
+    recruitment = Recruitment.query.filter_by(annotator_id=cur_user_id, index_for_annotator=idx).first()
     aspects = {
         'title_aspect': ['title', 'job_type'],
         'desc_aspect': ['body', 'education', 'experience', 'benefit', 'certification'],
@@ -155,9 +157,9 @@ def get_recruitment_data(idx):
 
     return data
 
-def get_annotation_data(r_idx, u_idx):
+def get_annotation_data(r_idx, u_id):
     from .models import Annotation
-    annotation = Annotation.query.filter_by(recruiment_id=r_idx, user_id=u_idx).first()
+    annotation = Annotation.query.filter_by(recruitment_id=r_idx, user_id=u_id).first()
     try:
         data = {col.name: getattr(annotation, col.name) for col in annotation.__table__.columns}
     except:
@@ -166,6 +168,15 @@ def get_annotation_data(r_idx, u_idx):
     return data
 
 
+def get_cross_check_data(rcmt_id, u_id, is_validator=True):
+    from .models import CrossCheckReviews
+    if is_validator:
+        cross_check_reviews = CrossCheckReviews.query.filter_by(recruitment_id=rcmt_id, validator_user_id=u_id).first()
+    else:
+        cross_check_reviews = CrossCheckReviews.query.filter_by(recruitment_id=rcmt_id, validated_user_id=u_id).first()
+    return cross_check_reviews
+    
+    
 def get_form_data(aspects, form):
     label = form.get('labeling_select')
     explanation = request.form.get('explanation')
@@ -185,7 +196,7 @@ def insert_annotation(r_id, u_id, aspect_level, label, explanation, db):
     from .models import Annotation
     from flask import flash
 
-    existing_annotation = Annotation.query.filter_by(recruiment_id=r_id, user_id=u_id).first()
+    existing_annotation = Annotation.query.filter_by(recruitment_id=r_id, user_id=u_id).first()
 
     if existing_annotation:
         # If an annotation exists, update its fields
@@ -199,7 +210,7 @@ def insert_annotation(r_id, u_id, aspect_level, label, explanation, db):
         flash('Annotation updated!', category='success')
     else:
         new_annotation = Annotation(
-            recruiment_id=r_id,
+            recruitment_id=r_id,
             user_id=u_id,
             title_aspect=aspect_level['title_aspect'],
             desc_aspect=aspect_level['desc_aspect'],
@@ -211,4 +222,27 @@ def insert_annotation(r_id, u_id, aspect_level, label, explanation, db):
         )
         db.session.add(new_annotation)
         flash('Annotation added!', category='success')
+    db.session.commit()
+
+
+
+def insert_cross_check_review(r_id, a_id, b_id, cross_check_review, db):
+    from .models import CrossCheckReviews
+    from flask import flash
+
+    existing_cross_check_review = CrossCheckReviews.query.filter_by(recruitment_id=r_id, validator_user_id=a_id).first()
+
+    if existing_cross_check_review:
+        # If an cross check review exists, update its fields
+        existing_cross_check_review.cross_check_review = cross_check_review
+        flash('Cross check review updated!', category='success')
+    else:
+        new_cross_check_review = CrossCheckReviews(
+            recruitment_id=r_id,
+            validator_user_id=a_id,
+            validated_user_id=b_id,
+            cross_check_review=cross_check_review
+        )
+        db.session.add(new_cross_check_review)
+        flash('Cross check review added!', category='success')
     db.session.commit()

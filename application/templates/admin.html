@@ -24,6 +24,7 @@
             <th>Email</th>
             <th>Username</th>
             <th>Is Admin</th>
+            <th>Validated User ID</th>
             <th></th>
             <th></th>
         </tr>
@@ -35,6 +36,7 @@
                 <td>{{ user.email }}</td>
                 <td>{{ user.username }}</td>
                 <td>{{ "Yes" if user.is_admin else "No" }}</td>
+                <td>{{ user.validated_user_id }}</td>
                 <td>
                     <button class="btn btn-primary btn-sm edit-button" data-id="{{ user.id }}">Edit</button></td>
                 <td>
@@ -63,8 +65,12 @@
         <input type="password" class="form-control" id="password" name="password" placeholder="Nhập mật khẩu" />
     </div>
     <div class="form-group">
-        <label for="is_admin">Admin </label>
+        <label for="is_admin">Admin</label>
         <input type="checkbox" class="form-control" id="is_admin" name="is_admin"/>
+    </div>
+    <div class="form-group">
+        <label for="validated_user_id">User được cross-checking</label>
+        <input type="number" class="form-control" id="validated_user_id" name="validated_user_id" placeholder="User được cross-checking" />
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>

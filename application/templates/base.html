@@ -64,6 +64,7 @@
                 {% if user.is_authenticated %}
                 <a class="nav-item nav-link" id="home" href="/home">TRANG CHỦ</a>
                 <a class="nav-item nav-link" id="annotate" href="/annotate">GÁN NHÃN</a>
+                <a class="nav-item nav-link" id="crossCheck" href="/cross_check">CROSS-CHECK</a>
                 <!-- The logout button initially hidden -->
                 <a class="nav-item nav-link" id="logout" href="/logout" style="display: none;">ĐĂNG XUẤT</a>
                 {% else %}
@@ -139,7 +140,7 @@
 
     <!-- Copyright -->
     <footer class="navbar navbar-dark bg-dark text-center py-2" style="margin-top: 50px;">
-        &copy; 2023 - Nhóm 5guysin1group - Ứng dụng labeling cho bài toán phát hiện tin tuyển dụng warning.
+        &copy; 2023 - Nhóm 5guysin1group - Ứng dụng gán nhãn cho bài toán phát hiện tin tuyển dụng bất thường.
     </footer>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"

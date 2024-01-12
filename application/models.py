@@ -7,10 +7,12 @@ from sqlalchemy.sql import func
 # User
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
+
     email = db.Column(db.String(150), unique=True)
     username = db.Column(db.String(20), unique=True)
     password = db.Column(db.String(150))
     is_admin = db.Column(db.Boolean, default=False)
+    validated_user_id = db.Column(db.Integer)
 
     # Related to Annotation
     annotations = db.relationship('Annotation')
@@ -19,7 +21,11 @@ class User(db.Model, UserMixin):
 # Recruitment
 class Recruitment(db.Model):
     index = db.Column(db.Integer, primary_key=True) # Index
-    id = db.Column(db.Integer, unique=True) # Recruitment ID
+    
+    id = db.Column(db.Integer, unique=True) # Recruitment ID 
+    index_for_annotator = db.Column(db.Integer)
+    annotator_id = db.Column(db.Integer)
+
     url = db.Column(db.String(255))
     total_images = db.Column(db.Integer)
     title = db.Column(db.String(255))
@@ -61,7 +67,7 @@ class Recruitment(db.Model):
 
 # Annotation
 class Annotation(db.Model):
-    recruiment_id = db.Column(db.Integer, db.ForeignKey('recruitment.id'), primary_key=True)
+    recruitment_id = db.Column(db.Integer, db.ForeignKey('recruitment.id'), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
 
     # Aspects
@@ -75,4 +81,13 @@ class Annotation(db.Model):
     label = db.Column(db.String(10)) # clean, seeding, warning
 
     # Explanation
-    explanation = db.Column(db.String(100))
+    explanation = db.Column(db.String(200))
+
+
+class CrossCheckReviews(db.Model):
+    recruitment_id = db.Column(db.Integer, db.ForeignKey('recruitment.id'), primary_key=True)
+    validator_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    validated_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+
+    # Cross check reviews
+    cross_check_review = db.Column(db.String(200))

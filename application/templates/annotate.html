@@ -108,11 +108,15 @@
     {% set explanation = '' %}
 {% endif %}
 
+<strong>Cross-check review (từ user {{ ck_data.validator_user_id, validator_name }}):</strong> {% if ck_data is none %} Chưa có {% else %} <strong>{{ ck_data.cross_check_review }}</strong> {% endif %} 
+
+<hr>
+
 <!-- Labeling -->
 <form action="{{ url_for('views.annotate', index=current_idx) }}" method="post">
     <!-- Labeling Input -->
     <div class="labeling-inputs">
-        <label for="labeling-select">Nhãn:</label>
+        <label for="labeling-select"><strong>Nhãn:</strong></label>
         <select name="labeling_select" id="labeling-select" required>
             <option value="">Bạn chưa chọn</option>
             <option value="clean" {% if label == 'clean' %}selected{% endif %}>Clean</option>
@@ -120,7 +124,7 @@
             <option value="warning" {% if label == 'warning' %}selected{% endif %}>Warning</option>
         </select>
         <br>
-        <label for="explanation">Viết câu giải thích:</label>
+        <label for="explanation"><strong>Viết câu giải thích:</strong></label>
         <!-- <input type="text" name="explanation" id="explanation" maxlength="5000" style="width: 100%;" value={{ explanation }}> -->
         <textarea name="explanation" id="explanation" rows="2" style="width: 100%;">{{ explanation }}</textarea>
     </div>
@@ -139,7 +143,7 @@
                 <th colspan="2">{{ aspect }}</th>
                 <td>
                     <select name="{{ aspect }}" required>
-                        <option value="">Bạn chưa chọn</option>
+                        <option value=""><strong>Bạn chưa chọn</strong></option>
                         <option value="negative" {% if ann_data is not none and ann_data[aspect] == 'negative' %}selected{% endif %}>negative</option>
                         <option value="neutral" {% if ann_data is not none and ann_data[aspect] == 'neutral' %}selected{% endif %}>neutral</option>
                         <option value="positive" {% if ann_data is not none and ann_data[aspect] == 'positive' %}selected{% endif %}>positive</option>

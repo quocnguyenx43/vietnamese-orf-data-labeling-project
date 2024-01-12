@@ -1,12 +1,12 @@
 from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for, send_file
 from flask_login import login_required, current_user
-from .models import User, Annotation, Recruitment
+from .models import User, Annotation, Recruitment, CrossCheckReviews
 from . import db
 import json
 from werkzeug.security import generate_password_hash
 from .utils import (
     populate_data, convert_to_csv, send_csv_as_download,
-    get_recruitment_data, get_annotation_data, get_form_data, insert_annotation,
+    get_recruitment_data, get_annotation_data, get_cross_check_data, get_form_data, insert_annotation, insert_cross_check_review,
     generate_monitor
 )
 from .backup_to_drive import (
@@ -17,6 +17,18 @@ from sqlalchemy import func
 
 views = Blueprint('views', __name__)
 
+index_to_name = {
+    1: "admin",
+    2: "VQuoc",
+    3: "BKhanh",
+    4: "TDuong",
+    5: "HAnh",
+    6: "QNhu",
+    7: "TDinh",
+    8: "HGiang",
+    9: "BHan",
+    10: "Kiet",
+}
 
 # Home handle
 @views.route('/')
@@ -37,26 +49,12 @@ def admin():
     all_users = User.query.all()
     current_files = os.listdir('data/')
 
-    index_to_name = {
-        1: "admin",
-        2: "VQuoc",
-        3: "TDuong",
-        4: "BKhanh",
-        5: "HTruong",
-        6: "QNhu",
-        7: "TDinh",
-        8: "HGiang",
-        9: "BHan",
-        10: "Kiet",
-        11: "HAnh"
-    }
-    monitors_query = db.session.query(Annotation.user_id, func.count().label('record_count')).group_by(Annotation.user_id).all()
-    monitors_results = {}
-    for each in monitors_query:
-        monitors_results[index_to_name[each[0]]] = each[1]
+    total_rows = db.session.query(Recruitment.annotator_id, func.count().label('row_count')).group_by(Recruitment.annotator_id).all()
+    monitors_query = db.session.query(Annotation.user_id, func.count().label('row_count')).group_by(Annotation.user_id).all()
 
-    for each in monitors_results:
-        print(each)
+    monitors_results = {}
+    for comp, total in zip(monitors_query, total_rows):
+        monitors_results[index_to_name[comp[0]]] = (comp[1], total[1])
 
     return render_template(
         "admin.html",
@@ -79,13 +77,15 @@ def add_user():
         username = request.form.get('username')
         password = request.form.get('password')
         is_admin = bool(request.form.get('is_admin'))
+        validated_user_id = int(request.form.get('validated_user_id'))
 
         # Add new user to db
         new_user = User(
             email=email,
             username=username,
             password=generate_password_hash(password, method='sha256'),
-            is_admin=is_admin
+            is_admin=is_admin,
+            validated_user_id=validated_user_id,
         )
         db.session.add(new_user)
         db.session.commit()
@@ -165,6 +165,8 @@ def view_data():
             data = Recruitment.query.all()
         elif table_selected == 'annotation':
             data = Annotation.query.all()
+        elif table_selected == 'cross-checking-reviews':
+            data = CrossCheckReviews.query.all()
 
         if button_clicked == 'download':
             csv_data = convert_to_csv(data)
@@ -226,16 +228,15 @@ def upload_to_drive():
 def annotate():
     # Handle args
     rcmt_idx = request.args.get('index')
-    count = Recruitment.query.count()
-    # n_completed = Annotation.query.filter_by(user_id=current_user.id).count()
+    current_user_id = current_user.id
 
-    merged_data_count = db.session.query(func.count()).select_from(Recruitment).join(
-        Annotation, Annotation.recruiment_id == Recruitment.id
+    # Count n completed and n incompleted
+    count = Recruitment.query.filter_by(annotator_id=current_user_id).count()
+    n_completed = db.session.query(func.count()).select_from(Recruitment).join(
+        Annotation, Annotation.recruitment_id == Recruitment.id
     ).filter(
-        Annotation.user_id == current_user.id
+        Annotation.user_id == current_user_id
     ).scalar()
-
-    n_completed = merged_data_count
 
     if rcmt_idx is None:
         return redirect(url_for('views.annotate', index=n_completed + 1))
@@ -252,11 +253,13 @@ def annotate():
         flash(f'Index không hợp lệ! Index phải là số, redirect về index 1. Index bạn yêu cầu: {rcmt_idx}', category='error')
         return redirect(url_for('views.annotate', index=1))
     
+    
     # Handle GET (to show recruitment data)
-    recruitment_data = get_recruitment_data(rcmt_idx)
+    recruitment_data = get_recruitment_data(rcmt_idx, current_user_id)
     rcmt_id = recruitment_data['other_aspect']['id']
-    annotation_data = get_annotation_data(rcmt_id, current_user.id)
-
+    annotation_data = get_annotation_data(rcmt_id, current_user_id)
+    cross_check_data = get_cross_check_data(rcmt_id, current_user_id, is_validator=False)
+    
     # Handle POST (to label recruitment sample)
     if request.method == 'POST':
         aspects = recruitment_data.keys()
@@ -282,5 +285,77 @@ def annotate():
         last=count,
         n_completed=n_completed,
         rcmt_data=recruitment_data,
-        ann_data=annotation_data
+        ann_data=annotation_data,
+        ck_data=cross_check_data,
+        validator_name=index_to_name[cross_check_data.validator_user_id] if cross_check_data is not None else None
+    )
+
+# Annotate handle
+@views.route('/cross_check/', methods=['GET', 'POST'])
+@login_required
+def cross_check():
+    # Handle args
+    rcmt_idx = request.args.get('index')
+    current_user_id = current_user.id
+    validated_user_id = current_user.validated_user_id
+    validatede_name = index_to_name[validated_user_id]
+
+    # Count n completed and n incompleted
+    count = Recruitment.query.filter_by(annotator_id=validated_user_id).count()
+    n_completed = db.session.query(func.count()).select_from(Recruitment).join(
+        CrossCheckReviews, CrossCheckReviews.recruitment_id == Recruitment.id
+    ).filter(
+        CrossCheckReviews.validator_user_id == current_user_id
+    ).scalar()
+
+    if rcmt_idx is None:
+        return redirect(url_for('views.cross_check', index=n_completed + 1))
+
+    try:
+        rcmt_idx = int(rcmt_idx)
+        if rcmt_idx < 1:
+            flash(f'Index cần phải lớn hơn hoặc bằng 1 ! redirect về index 1. Index bạn yêu cầu: {rcmt_idx}', category='error')
+            return redirect(url_for('views.cross_check', index=1))
+        elif rcmt_idx > count:
+            flash(f'Index lớn hơn phạm vi! redirect về index cuối cùng. Index bạn yêu cầu: {rcmt_idx}, tối đa: {count}', category='error')
+            return redirect(url_for('views.cross_check', index=count))
+    except ValueError:
+        flash(f'Index không hợp lệ! Index phải là số, redirect về index 1. Index bạn yêu cầu: {rcmt_idx}', category='error')
+        return redirect(url_for('views.cross_check', index=1))
+    
+    
+    # Handle GET (to show recruitment data)
+    recruitment_data = get_recruitment_data(rcmt_idx, validated_user_id)
+    rcmt_id = recruitment_data['other_aspect']['id']
+    annotation_data = get_annotation_data(rcmt_id, validated_user_id)
+    cross_check_data = get_cross_check_data(rcmt_id, current_user_id)
+    
+    # Handle POST (to label recruitment sample)
+    if request.method == 'POST':
+        cross_check_review = request.form.get('cross_check_review')
+
+        # Download backup
+        download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
+
+        # Insert data thành công
+        insert_cross_check_review(rcmt_id, current_user_id, validated_user_id, cross_check_review, db)
+        flash(f'Thêm mới / cập nhật nhãn ý kiến mẫu cross cheked số {rcmt_idx} thành công, chuyển tiếp đến mẫu kế tiếp!', category='success')
+
+        # Backup thành công
+        upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
+        flash('Upload dabase backup từ hệ thống lên Google Drive thành công !!!')
+        return redirect(url_for('views.cross_check', index=int(rcmt_idx) + 1))
+    
+    return render_template(
+        "cross_check.html",
+        current_idx=rcmt_idx,
+        user=current_user,
+        validated_user_id=validated_user_id,
+        validatede_name=validatede_name,
+        rcmt_idx=rcmt_idx,
+        last=count,
+        n_completed=n_completed,
+        rcmt_data=recruitment_data,
+        ann_data=annotation_data,
+        ck_data=cross_check_data
     )
