@@ -6,15 +6,52 @@
     <a href="/view-data" class="view-data" class="btn btn-success">XEM DATA</a>
 </div>
 
+<style>
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+</style>
+
 <h1>Monitor</h1>
 <table>
-{% for key in monitors.items() %}
-    <tr>
-        <td>{{ key }}</td>
-        <td>{{ monitors[key] }}</td>
-    </tr>
-{% endfor %}
+    <thead>
+        <tr>
+            <th>Annotators</th>
+            <th>Completed Annotations</th>
+            <th>Completed Cross-checking Reviews</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for key, value in monitors.items() %}
+            <tr>
+                <td>{{ key }}</td>
+                <td>{{ value[0] }}</td>
+                <td>{{ value[1] }}</td>
+                <td>{{ value[2] }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
 </table>
+
+
 
 <h1>User List</h1>
 <table class="table user-list">

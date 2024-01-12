@@ -50,11 +50,12 @@ def admin():
     current_files = os.listdir('data/')
 
     total_rows = db.session.query(Recruitment.annotator_id, func.count().label('row_count')).group_by(Recruitment.annotator_id).all()
-    monitors_query = db.session.query(Annotation.user_id, func.count().label('row_count')).group_by(Annotation.user_id).all()
+    annotations = db.session.query(Annotation.user_id, func.count().label('row_count')).group_by(Annotation.user_id).all()
+    cross_check_reviews = db.session.query(CrossCheckReviews.validator_user_id, func.count().label('row_count')).group_by(CrossCheckReviews.validator_user_id).all()
 
     monitors_results = {}
-    for comp, total in zip(monitors_query, total_rows):
-        monitors_results[index_to_name[comp[0]]] = (comp[1], total[1])
+    for comp, total, ck_reviews in zip(annotations, total_rows, cross_check_reviews):
+        monitors_results[index_to_name[comp[0]]] = (comp[1], ck_reviews[1], total[1])
 
     return render_template(
         "admin.html",
