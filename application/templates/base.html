@@ -60,6 +60,7 @@
             <div class="navbar-nav">
                 {% if user.is_admin %}
                 <a class="nav-item nav-link" id="admin" href="/admin">QUẢN TRỊ</a>
+                <a class="nav-item nav-link" id="adminRefreshData" href="/refresh_from_drive">REFRESH DATA FROM DRIVE</a>
                 {% else %}
                 {% if user.is_authenticated %}
                 <a class="nav-item nav-link" id="home" href="/home">TRANG CHỦ</a>
