@@ -53,9 +53,28 @@ def admin():
     annotations = db.session.query(Annotation.user_id, func.count().label('row_count')).group_by(Annotation.user_id).all()
     cross_check_reviews = db.session.query(CrossCheckReviews.validator_user_id, func.count().label('row_count')).group_by(CrossCheckReviews.validator_user_id).all()
 
+    total_rows = dict(total_rows)
+    annotations = dict(annotations)
+    cross_check_reviews = dict(cross_check_reviews)
+
     monitors_results = {}
-    for comp, total, ck_reviews in zip(annotations, total_rows, cross_check_reviews):
-        monitors_results[index_to_name[comp[0]]] = (comp[1], ck_reviews[1], total[1])
+    for i in index_to_name:
+        try:
+            a = annotations[i]
+        except:
+            a = 0
+        try:
+            b = cross_check_reviews[i]
+        except:
+            b = 0
+        
+        try:
+            c = total_rows[i]
+        except:
+            c = 0
+        monitors_results[index_to_name[i]] = (a, b, c)
+
+    monitors_results.pop('admin', None)
 
     return render_template(
         "admin.html",
