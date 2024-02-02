@@ -6,7 +6,7 @@ import json
 from werkzeug.security import generate_password_hash
 from .utils import (
     populate_data, convert_to_csv, send_csv_as_download,
-    get_recruitment_data, get_annotation_data, get_cross_check_data, get_form_data, insert_annotation, insert_cross_check_review,
+    get_recruitment_data, get_annotation_data, get_cross_check_data, get_form_data, insert_annotation, insert_cross_check_review, get_samples_not_okay,
     generate_monitor
 )
 from .backup_to_drive import (
@@ -279,7 +279,25 @@ def annotate():
     rcmt_id = recruitment_data['other_aspect']['id']
     annotation_data = get_annotation_data(rcmt_id, current_user_id)
     cross_check_data = get_cross_check_data(rcmt_id, current_user_id, is_validator=False)
-    
+
+    samples_not_okay = [review.recruitment_id for review in get_samples_not_okay(current_user_id)]
+    filtered_recruitments = Recruitment.query.filter(Recruitment.id.in_(samples_not_okay)).all()
+    indices_samples_not_okay = [rcmt.index_for_annotator for rcmt in filtered_recruitments]
+    indices_samples_not_okay = sorted(indices_samples_not_okay)
+    print(indices_samples_not_okay)
+
+    try:
+        i = indices_samples_not_okay.index(rcmt_idx)        
+        left = 0 if i == 0 else i - 1
+        right = len(indices_samples_not_okay) - 1 if i == len(indices_samples_not_okay) - 1 else i + 1
+    except ValueError:
+        if indices_samples_not_okay[0] > rcmt_idx:
+            left = 0
+            right = 0
+        else: 
+            left = -1
+            right = -1
+
     # Handle POST (to label recruitment sample)
     if request.method == 'POST':
         aspects = recruitment_data.keys()
@@ -307,7 +325,8 @@ def annotate():
         rcmt_data=recruitment_data,
         ann_data=annotation_data,
         ck_data=cross_check_data,
-        validator_name=index_to_name[cross_check_data.validator_user_id] if cross_check_data is not None else None
+        validator_name=index_to_name[cross_check_data.validator_user_id] if cross_check_data is not None else None,
+        indices_samples_not_okay=indices_samples_not_okay,left=left,right=right
     )
 
 # Annotate handle
@@ -343,7 +362,6 @@ def cross_check():
         flash(f'Index không hợp lệ! Index phải là số, redirect về index 1. Index bạn yêu cầu: {rcmt_idx}', category='error')
         return redirect(url_for('views.cross_check', index=1))
     
-    
     # Handle GET (to show recruitment data)
     recruitment_data = get_recruitment_data(rcmt_idx, validated_user_id)
     rcmt_id = recruitment_data['other_aspect']['id']
@@ -352,13 +370,18 @@ def cross_check():
     
     # Handle POST (to label recruitment sample)
     if request.method == 'POST':
+        is_accepted = bool(request.form.get('is_accepted'))
         cross_check_review = request.form.get('cross_check_review')
+
+        if not cross_check_review.strip() and is_accepted == False:
+            flash(f'Không OKAY thì phải ghi câu giải thích rõ ràng!', category='error')
+            return redirect(url_for('views.cross_check', index=rcmt_idx))
 
         # Download backup
         download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
 
         # Insert data thành công
-        insert_cross_check_review(rcmt_id, current_user_id, validated_user_id, cross_check_review, db)
+        insert_cross_check_review(rcmt_id, current_user_id, validated_user_id, cross_check_review, is_accepted, db)
         flash(f'Thêm mới / cập nhật nhãn ý kiến mẫu cross cheked số {rcmt_idx} thành công, chuyển tiếp đến mẫu kế tiếp!', category='success')
 
         # Backup thành công

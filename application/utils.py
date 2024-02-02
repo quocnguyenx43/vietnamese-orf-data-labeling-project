@@ -174,8 +174,13 @@ def get_cross_check_data(rcmt_id, u_id, is_validator=True):
         cross_check_reviews = CrossCheckReviews.query.filter_by(recruitment_id=rcmt_id, validator_user_id=u_id).first()
     else:
         cross_check_reviews = CrossCheckReviews.query.filter_by(recruitment_id=rcmt_id, validated_user_id=u_id).first()
+
     return cross_check_reviews
     
+def get_samples_not_okay(u_id):
+    from .models import CrossCheckReviews
+    cross_check_reviews = CrossCheckReviews.query.filter_by(validated_user_id=u_id, is_accepted=False).all()
+    return cross_check_reviews
     
 def get_form_data(aspects, form):
     label = form.get('labeling_select')
@@ -226,7 +231,7 @@ def insert_annotation(r_id, u_id, aspect_level, label, explanation, db):
 
 
 
-def insert_cross_check_review(r_id, a_id, b_id, cross_check_review, db):
+def insert_cross_check_review(r_id, a_id, b_id, cross_check_review, is_accepted, db):
     from .models import CrossCheckReviews
     from flask import flash
 
@@ -235,13 +240,15 @@ def insert_cross_check_review(r_id, a_id, b_id, cross_check_review, db):
     if existing_cross_check_review:
         # If an cross check review exists, update its fields
         existing_cross_check_review.cross_check_review = cross_check_review
+        existing_cross_check_review.is_accepted = is_accepted
         flash('Cross check review updated!', category='success')
     else:
         new_cross_check_review = CrossCheckReviews(
             recruitment_id=r_id,
             validator_user_id=a_id,
             validated_user_id=b_id,
-            cross_check_review=cross_check_review
+            cross_check_review=cross_check_review,
+            is_accepted=is_accepted
         )
         db.session.add(new_cross_check_review)
         flash('Cross check review added!', category='success')

@@ -101,15 +101,24 @@
 {% if ck_data is not none %}
     <h2 class="text-success text-center">Mẫu số <strong>{{ current_idx }}</strong>. Bạn đã cross-checked mẫu dữ liệu này. Bạn đang cập nhật!</h2>
     {% set cross_check_review = ck_data.cross_check_review %}
+    {% set is_accepted = ck_data.is_accepted %}
 {% else %}
     <h2 class="text-danger text-center">Mẫu số <strong>{{ current_idx }}</strong>. Bạn chưa từng cross-checked mẫu dữ liệu này!</h2>
     {% set cross_check_review = '' %}
+    {% set is_accepted = False %}
 {% endif %}
+
 
 <!-- cross-checking -->
 <form action="{{ url_for('views.cross_check', index=current_idx) }}" method="post">
     <!-- cross-checking Input -->
+
     <div class="cross-checking-inputs">
+        <label for="is_ccepted">Okay or not?</label>
+        <input type="checkbox" id="is_accepted" name="is_accepted" {% if is_accepted %}checked{% endif %}>
+
+        <br>
+
         <label for="cross_check_review">Viết câu cross-checking review:</label>
         <textarea name="cross_check_review" id="cross_check_review" rows="2" style="width: 100%;">{{ cross_check_review }}</textarea>
     </div>

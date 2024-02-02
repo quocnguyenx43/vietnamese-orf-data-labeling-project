@@ -63,6 +63,21 @@
         <i class="fas fa-arrow-right"></i> Tiếp theo
     </button>
 </div>
+<br>
+<div class="d-flex justify-content-center">
+    <button class="btn btn-primary mr-3" id="previous" onclick="window.location.href='/annotate/?index={{ indices_samples_not_okay[0] }}'">
+        <i class="fas fa-arrow-left"></i> <strong>(Not Okay)</strong> đầu tiên
+    </button>
+    <button class="btn btn-primary mr-3" id="previous" onclick="window.location.href='/annotate/?index={{ indices_samples_not_okay[left] }}'">
+        <i class="fas fa-fast-backward"></i> <strong>(Not Okay)</strong> lùi lại
+    </button>
+    <button class="btn btn-primary mr-3" id="previous" onclick="window.location.href='/annotate/?index={{ indices_samples_not_okay[right] }}'">
+        <i class="fas fa-fast-forward"></i> <strong>(Not Okay)</strong> tiếp theo
+    </button>
+    <button class="btn btn-primary mr-3" id="previous" onclick="window.location.href='/annotate/?index={{ indices_samples_not_okay[-1] }}'">
+        <i class="fas fa-arrow-right"></i> <strong>(Not Okay)</strong> cuối cùng
+    </button>
+</div>
 <style>
     /* Add custom CSS styles */
     body, html {
@@ -108,7 +123,11 @@
     {% set explanation = '' %}
 {% endif %}
 
-<strong>Cross-check review (từ user {{ ck_data.validator_user_id, validator_name }}):</strong> {% if ck_data is none %} Chưa có {% else %} <strong>{{ ck_data.cross_check_review }}</strong> {% endif %} 
+<strong>Cross-check review (từ user {{ ck_data.validator_user_id, validator_name }}):</strong>
+<br>
+- <strong>Is Okay</strong>: {% if ck_data.is_accepted == True %} Okay {% else %} Không Okay {% endif %}
+<br>
+- <strong>Review</strong>: {% if ck_data is none %} Chưa có {% else %} <strong>{{ ck_data.cross_check_review }}</strong> {% endif %} 
 
 <hr>
 
