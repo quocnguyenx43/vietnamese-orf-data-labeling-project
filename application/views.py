@@ -284,19 +284,22 @@ def annotate():
     filtered_recruitments = Recruitment.query.filter(Recruitment.id.in_(samples_not_okay)).all()
     indices_samples_not_okay = [rcmt.index_for_annotator for rcmt in filtered_recruitments]
     indices_samples_not_okay = sorted(indices_samples_not_okay)
-    print(indices_samples_not_okay)
 
     try:
         i = indices_samples_not_okay.index(rcmt_idx)        
         left = 0 if i == 0 else i - 1
         right = len(indices_samples_not_okay) - 1 if i == len(indices_samples_not_okay) - 1 else i + 1
     except ValueError:
-        if indices_samples_not_okay[0] > rcmt_idx:
-            left = 0
-            right = 0
-        else: 
-            left = -1
-            right = -1
+        if indices_samples_not_okay:
+            if indices_samples_not_okay[0] > rcmt_idx:
+                left = 0
+                right = 0
+            else: 
+                left = -1
+                right = -1
+        else:
+            left = 1
+            right = 1
 
     # Handle POST (to label recruitment sample)
     if request.method == 'POST':
