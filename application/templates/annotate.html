@@ -33,7 +33,56 @@
         transform: translateX(-50%);
         line-height: 20px;
     }
+
+    /* Additional information initially hidden */
+    .additional-info {
+        display: none;
+    }
+    
+    /* Style the arrow */
+    .arrow {
+        display: inline-block;
+        width: 0;
+        height: 0;
+        border: solid black;
+        border-width: 0 3px 3px 0;
+        padding: 3px;
+        margin-left: 5px;
+    }
+    
+    /* Change cursor style to pointer */
+    .toggle-item {
+        cursor: pointer;
+    }
+
+    .toggle-item:hover {
+        background-color: lightgray;
+    }
 </style>
+
+<!-- Item to toggle -->
+<div class="toggle-item" onclick="toggleInfo(this)">
+    <strong>Bấm vào để xem các mẫu mà bạn chưa gán <span class="arrow">&#9660;</span></strong>
+    <!-- Additional information hidden by default -->
+    <div class="additional-info">{{ indices_incompleted }} <br> <strong>Số lượng</strong>: {{ indices_incompleted|length }}</div>
+</div>
+
+<script>
+    function toggleInfo(item) {
+        // Find the additional information within the item
+        var additionalInfo = item.querySelector('.additional-info');
+        var arrow = item.querySelector('.arrow');
+        
+        // Toggle the visibility of the additional information
+        if (additionalInfo.style.display === 'none') {
+            additionalInfo.style.display = 'block';
+            arrow.innerHTML = '&#9650;'; // Change arrow to up arrow when expanded
+        } else {
+            additionalInfo.style.display = 'none';
+            arrow.innerHTML = '&#9660;'; // Change arrow to down arrow when collapsed
+        }
+    }
+</script>
 
 <div class="progress-bar">
     <!-- Calculate the percentage of completed tasks -->

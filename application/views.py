@@ -279,6 +279,13 @@ def annotate():
     rcmt_id = recruitment_data['other_aspect']['id']
     annotation_data = get_annotation_data(rcmt_id, current_user_id)
     cross_check_data = get_cross_check_data(rcmt_id, current_user_id, is_validator=False)
+    indices_completed = db.session.query(Recruitment.index_for_annotator).join(
+        Annotation, Annotation.recruitment_id == Recruitment.id
+    ).filter(
+        Annotation.user_id == current_user_id
+    ).all()
+    indices_completed = [item for sublist in indices_completed for item in sublist]
+    indices_incompleted = list(set(range(1, 501)) - set(indices_completed))
 
     samples_not_okay = [review.recruitment_id for review in get_samples_not_okay(current_user_id)]
     filtered_recruitments = Recruitment.query.filter(Recruitment.id.in_(samples_not_okay)).all()
@@ -329,7 +336,8 @@ def annotate():
         ann_data=annotation_data,
         ck_data=cross_check_data,
         validator_name=index_to_name[cross_check_data.validator_user_id] if cross_check_data is not None else None,
-        indices_samples_not_okay=indices_samples_not_okay,left=left,right=right
+        indices_samples_not_okay=indices_samples_not_okay,left=left,right=right,
+        indices_incompleted=indices_incompleted,
     )
 
 # Annotate handle

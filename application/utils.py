@@ -167,7 +167,6 @@ def get_annotation_data(r_idx, u_id):
 
     return data
 
-
 def get_cross_check_data(rcmt_id, u_id, is_validator=True):
     from .models import CrossCheckReviews
     if is_validator:
