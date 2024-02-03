@@ -224,7 +224,7 @@ def refresh_from_drive():
     if not current_user.is_admin:
         return "Không có quyền truy cập vào trang quản trị admin.", 403
     
-    # download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
+    download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
     flash('Tải dabase backup từ Google Drive về hệ thống thành công !!!')
     return redirect(url_for('views.admin'))
 
@@ -237,7 +237,7 @@ def upload_to_drive():
     if not current_user.is_admin:
         return "Không có quyền truy cập vào trang quản trị admin.", 403
     
-    # upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
+    upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
     flash('Upload dabase backup từ hệ thống lên Google Drive thành công !!!')
     return redirect(url_for('views.admin'))
 
@@ -318,7 +318,7 @@ def annotate():
         aspect_level, label, explanation, is_done = get_form_data(aspects, request.form)
 
         # Download backup
-        # download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
+        download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
 
         # Insert data thành công
         insert_annotation(rcmt_id, current_user.id, aspect_level, label, explanation, db)
@@ -334,7 +334,7 @@ def annotate():
         flash(f'Gán / cập nhật nhãn mẫu dữ liệu số {rcmt_idx} thành công, chuyển tiếp đến mẫu kế tiếp!', category='success')
 
         # Backup thành công
-        # upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
+        upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
         flash('Upload dabase backup từ hệ thống lên Google Drive thành công !!!')
         return redirect(url_for('views.annotate', index=int(rcmt_idx) + 1))
     
@@ -402,14 +402,14 @@ def cross_check():
             return redirect(url_for('views.cross_check', index=rcmt_idx))
 
         # Download backup
-        # download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
+        download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
 
         # Insert data thành công
         insert_cross_check_review(rcmt_id, current_user_id, validated_user_id, cross_check_review, is_accepted, db)
         flash(f'Thêm mới / cập nhật nhãn ý kiến mẫu cross cheked số {rcmt_idx} thành công, chuyển tiếp đến mẫu kế tiếp!', category='success')
 
         # Backup thành công
-        # upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
+        upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
         flash('Upload dabase backup từ hệ thống lên Google Drive thành công !!!')
         return redirect(url_for('views.cross_check', index=int(rcmt_idx) + 1))
     
