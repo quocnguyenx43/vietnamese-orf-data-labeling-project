@@ -159,6 +159,50 @@
     .submit-btn {
         margin-top: 15px; /* Change this value to adjust the gap */
     }
+
+    .custom-checkbox {
+        /* Hide the default checkbox */
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        /* Define custom dimensions */
+        width: 25px;
+        height: 25px;
+        /* Use a red background for the custom checkbox */
+        background-color: grey;
+        /* Add a border for better visibility */
+        border: 2px solid black;
+        /* Add rounded corners for aesthetics */
+        border-radius: 5px;
+        /* Adjust position to align with label */
+        vertical-align: middle;
+        /* Ensure cursor changes to pointer on hover */
+        cursor: pointer;
+        /* Position the checkmark */
+        position: relative;
+        }
+
+    /* Style the label when checkbox is checked */
+    .custom-checkbox:checked {
+        background-color: red;
+    }
+
+    /* Create the checked indicator */
+    .custom-checkbox::after {
+        content: '\2714'; /* Unicode checkmark symbol */
+        font-size: 20px; /* Adjust size */
+        color: white; /* Color of the checkmark */
+        position: absolute; /* Position the checkmark */
+        top: 50%; /* Align vertically */
+        left: 50%; /* Align horizontally */
+        transform: translate(-50%, -50%); /* Center the checkmark */
+        display: none; /* Initially hidden */
+    }
+
+    /* Display the checked indicator when checkbox is checked */
+    .custom-checkbox:checked::after {
+        display: block;
+    }
 </style>
 
 <!-- Extract annotation -->
@@ -172,11 +216,15 @@
     {% set explanation = '' %}
 {% endif %}
 
+{% if ck_data is not none %}
 <strong>Cross-check review (từ user {{ ck_data.validator_user_id, validator_name }}):</strong>
 <br>
-- <strong>Is Okay</strong>: {% if ck_data.is_accepted == True %} Okay {% else %} Không Okay {% endif %}
+- <strong>Is Okay?</strong>: {{ ck_data.is_accepted }}
 <br>
-- <strong>Review</strong>: {% if ck_data is none %} Chưa có {% else %} <strong>{{ ck_data.cross_check_review }}</strong> {% endif %} 
+- <strong>Review</strong>: {{ ck_data.cross_check_review }}
+{% else %}
+Chưa có User nào cross-check cho bạn
+{% endif %}
 
 <hr>
 
@@ -184,6 +232,11 @@
 <form action="{{ url_for('views.annotate', index=current_idx) }}" method="post">
     <!-- Labeling Input -->
     <div class="labeling-inputs">
+        {% if ck_data is not none %}
+            <label for="is_done"><strong>Đánh dấu đã review lại</strong></label>
+            <input type="checkbox" id="is_done" name="is_done" class="custom-checkbox" {% if ck_data.is_done %}checked{% endif %}>
+        {% endif %}
+        <br>
         <label for="labeling-select"><strong>Nhãn:</strong></label>
         <select name="labeling_select" id="labeling-select" required>
             <option value="">Bạn chưa chọn</option>

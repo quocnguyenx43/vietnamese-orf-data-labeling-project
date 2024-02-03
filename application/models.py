@@ -92,3 +92,4 @@ class CrossCheckReviews(db.Model):
     # Cross check reviews
     cross_check_review = db.Column(db.String(200))
     is_accepted = db.Column(db.Boolean, default=False)
+    is_done = db.Column(db.Boolean, default=False)

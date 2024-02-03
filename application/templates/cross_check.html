@@ -102,10 +102,12 @@
     <h2 class="text-success text-center">Mẫu số <strong>{{ current_idx }}</strong>. Bạn đã cross-checked mẫu dữ liệu này. Bạn đang cập nhật!</h2>
     {% set cross_check_review = ck_data.cross_check_review %}
     {% set is_accepted = ck_data.is_accepted %}
+    {% set is_done = ck_data.is_done %}
 {% else %}
     <h2 class="text-danger text-center">Mẫu số <strong>{{ current_idx }}</strong>. Bạn chưa từng cross-checked mẫu dữ liệu này!</h2>
     {% set cross_check_review = '' %}
     {% set is_accepted = False %}
+    {% set is_done = False %}
 {% endif %}
 
 
@@ -130,6 +132,8 @@
     <br>
 
     <!-- View Data -->
+    User này đã đọc và review lại từ nhận xét của bạn: <strong>{{ is_done }}</strong>
+    <hr>
     <label for="label">Nhãn:</label> {% if ann_data is none %} Chưa gán {% else %} <strong>{{ ann_data['label'] }}</strong> {% endif %}
     <br>
     <label for="explanation">Câu giải thích:</label> {% if ann_data is none %} Chưa gán {% else %} <strong>{{ ann_data['explanation'] }}</strong> {% endif %}

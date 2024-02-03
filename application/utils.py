@@ -184,6 +184,7 @@ def get_samples_not_okay(u_id):
 def get_form_data(aspects, form):
     label = form.get('labeling_select')
     explanation = request.form.get('explanation')
+    is_done = bool(request.form.get('is_done'))
 
     aspect_level = {}
     
@@ -193,7 +194,7 @@ def get_form_data(aspects, form):
         aspect_level[aspect] = aspect_value
     
 
-    return aspect_level, label, explanation
+    return aspect_level, label, explanation, is_done
 
 
 def insert_annotation(r_id, u_id, aspect_level, label, explanation, db):
@@ -230,7 +231,7 @@ def insert_annotation(r_id, u_id, aspect_level, label, explanation, db):
 
 
 
-def insert_cross_check_review(r_id, a_id, b_id, cross_check_review, is_accepted, db):
+def insert_cross_check_review(r_id, a_id, b_id, cross_check_review, is_accepted, is_done, db):
     from .models import CrossCheckReviews
     from flask import flash
 
@@ -240,6 +241,7 @@ def insert_cross_check_review(r_id, a_id, b_id, cross_check_review, is_accepted,
         # If an cross check review exists, update its fields
         existing_cross_check_review.cross_check_review = cross_check_review
         existing_cross_check_review.is_accepted = is_accepted
+        existing_cross_check_review.is_done = is_done
         flash('Cross check review updated!', category='success')
     else:
         new_cross_check_review = CrossCheckReviews(
@@ -247,7 +249,8 @@ def insert_cross_check_review(r_id, a_id, b_id, cross_check_review, is_accepted,
             validator_user_id=a_id,
             validated_user_id=b_id,
             cross_check_review=cross_check_review,
-            is_accepted=is_accepted
+            is_accepted=is_accepted,
+            is_done=is_done,
         )
         db.session.add(new_cross_check_review)
         flash('Cross check review added!', category='success')
