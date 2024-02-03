@@ -281,7 +281,10 @@ def annotate():
     cross_check_data = get_cross_check_data(rcmt_id, current_user_id, is_validator=False)
 
     if cross_check_data:
-        print(cross_check_data.is_done)
+        validator_user_id = cross_check_data.validator_user_id
+        validated_user_id = cross_check_data.validated_user_id
+        cross_check_review = cross_check_data.cross_check_review
+        is_accepted = cross_check_data.is_accepted
 
     indices_completed = db.session.query(Recruitment.index_for_annotator).join(
         Annotation, Annotation.recruitment_id == Recruitment.id
@@ -322,15 +325,16 @@ def annotate():
 
         # Insert data thành công
         insert_annotation(rcmt_id, current_user.id, aspect_level, label, explanation, db)
-        insert_cross_check_review(
-            rcmt_id,
-            cross_check_data.validator_user_id,
-            cross_check_data.validated_user_id,
-            cross_check_data.cross_check_review,
-            cross_check_data.is_accepted,
-            is_done,
-            db
-        )
+        if cross_check_data:
+            insert_cross_check_review(
+                rcmt_id,
+                validator_user_id,
+                validated_user_id,
+                cross_check_review,
+                is_accepted,
+                is_done,
+                db
+            )
         flash(f'Gán / cập nhật nhãn mẫu dữ liệu số {rcmt_idx} thành công, chuyển tiếp đến mẫu kế tiếp!', category='success')
 
         # Backup thành công
