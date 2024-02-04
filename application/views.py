@@ -333,7 +333,7 @@ def annotate():
                 cross_check_review,
                 is_accepted,
                 is_done,
-                db
+                db,
             )
         flash(f'Gán / cập nhật nhãn mẫu dữ liệu số {rcmt_idx} thành công, chuyển tiếp đến mẫu kế tiếp!', category='success')
 
@@ -409,7 +409,7 @@ def cross_check():
         download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
 
         # Insert data thành công
-        insert_cross_check_review(rcmt_id, current_user_id, validated_user_id, cross_check_review, is_accepted, db)
+        insert_cross_check_review(rcmt_id, current_user_id, validated_user_id, cross_check_review, is_accepted, False, db)
         flash(f'Thêm mới / cập nhật nhãn ý kiến mẫu cross cheked số {rcmt_idx} thành công, chuyển tiếp đến mẫu kế tiếp!', category='success')
 
         # Backup thành công
