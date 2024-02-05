@@ -21,13 +21,16 @@
 
 <!-- Select -->
 <form method="POST">
-    <label for="table-select">Select an option:</label>
+    <label for="table-select">Chọn bảng:</label>
     <select id="table-select" name="table-select">
         <option value="user" selected>User</option>
         <option value="recruitment">Recruitment</option>
         <option value="annotation">Annotation</option>
         <option value="cross-checking-reviews">Cross Checking Reviews</option>
     </select>
+    <br>
+    <label for="limit-select">Giới hạn:</label>
+    <input type="number" name="limit-select" id="limit-select" value="100">
     <br>
     <button type="submit" name="action" value="view">Xem</button>
     <button type="submit" name="action" value="download">Tải dữ liệu</button>

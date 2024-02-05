@@ -188,13 +188,24 @@ def view_data():
     if request.method == 'POST':
         table_selected = request.form['table-select']
         button_clicked = request.form.get('action')
+        limit = int(request.form['limit-select'])
 
         if table_selected == 'recruitment':
-            data = Recruitment.query.all()
+            if limit > 0:
+                data = Recruitment.query.limit(limit).all()
+            else:
+                data = Recruitment.query.all()
         elif table_selected == 'annotation':
-            data = Annotation.query.all()
+            if limit > 0:
+                data = Annotation.query.order_by(Annotation.date).limit(limit).all()
+            else:
+                data = Annotation.query.order_by(Annotation.date).all()
         elif table_selected == 'cross-checking-reviews':
-            data = CrossCheckReviews.query.all()
+            if limit > 0:
+                data = CrossCheckReviews.query.order_by(CrossCheckReviews.date).limit(limit).all()
+            else:
+                data = CrossCheckReviews.query.order_by(CrossCheckReviews.date).all()
+                
 
         if button_clicked == 'download':
             csv_data = convert_to_csv(data)

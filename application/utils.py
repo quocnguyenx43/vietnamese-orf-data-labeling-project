@@ -201,7 +201,7 @@ def get_form_data(aspects, form):
 def insert_annotation(r_id, u_id, aspect_level, label, explanation, db):
     from .models import Annotation
     from flask import flash
-    from datetime import datetime
+    from datetime import datetime, timedelta
 
     existing_annotation = Annotation.query.filter_by(recruitment_id=r_id, user_id=u_id).first()
 
@@ -214,7 +214,7 @@ def insert_annotation(r_id, u_id, aspect_level, label, explanation, db):
         existing_annotation.other_aspect = aspect_level['other_aspect']
         existing_annotation.label = label
         existing_annotation.explanation = explanation
-        existing_annotation.date = datetime.now()
+        existing_annotation.date = datetime.now() + timedelta(hours=6)
         flash('Annotation updated!', category='success')
     else:
         new_annotation = Annotation(
@@ -227,7 +227,7 @@ def insert_annotation(r_id, u_id, aspect_level, label, explanation, db):
             other_aspect=aspect_level['other_aspect'],
             label=label,
             explanation=explanation,
-            date=datetime.now()
+            date=datetime.now() + timedelta(hours=6)
         )
         db.session.add(new_annotation)
         flash('Annotation added!', category='success')
@@ -238,7 +238,7 @@ def insert_annotation(r_id, u_id, aspect_level, label, explanation, db):
 def insert_cross_check_review(r_id, a_id, b_id, cross_check_review, is_accepted, is_done, db):
     from .models import CrossCheckReviews
     from flask import flash
-    from datetime import datetime
+    from datetime import datetime, timedelta
 
     existing_cross_check_review = CrossCheckReviews.query.filter_by(recruitment_id=r_id, validator_user_id=a_id).first()
 
@@ -247,7 +247,7 @@ def insert_cross_check_review(r_id, a_id, b_id, cross_check_review, is_accepted,
         existing_cross_check_review.cross_check_review = cross_check_review
         existing_cross_check_review.is_accepted = is_accepted
         existing_cross_check_review.is_done = is_done
-        existing_cross_check_review.date = datetime.now()
+        existing_cross_check_review.date = datetime.now() + timedelta(hours=6)
         flash('Cross check review updated!', category='success')
     else:
         new_cross_check_review = CrossCheckReviews(
@@ -257,7 +257,7 @@ def insert_cross_check_review(r_id, a_id, b_id, cross_check_review, is_accepted,
             cross_check_review=cross_check_review,
             is_accepted=is_accepted,
             is_done=is_done,
-            date=datetime.now()
+            date=datetime.now() + timedelta(hours=6)
         )
         db.session.add(new_cross_check_review)
         flash('Cross check review added!', category='success')
