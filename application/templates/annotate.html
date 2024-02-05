@@ -152,15 +152,31 @@
         border-radius: 5px;
         cursor: pointer;
         margin: 0;
+        font-weight: bold;
     }
 
     .custom-radio:hover {
         background-color: #ddd; /* Change background color on hover */
     }
+    
+    .ratio_pos:checked + .label_pos {
+        background-color: yellowgreen; /* Change background color when checked */
+        color: greenyellow;
+    }
 
-    .radio-group input[type="radio"]:checked + label {
-        background-color: #007bff; /* Change background color when checked */
-        color: #fff;
+    .ratio_neg:checked + .label_neg {
+        background-color: yellowgreen; /* Change background color when checked */
+        color: red;
+    }
+
+    .ratio_neu:checked + .label_neu {
+        background-color: yellowgreen; /* Change background color when checked */
+        color: white;
+    }
+
+    .ratio_nm:checked + .label_nm {
+        background-color: yellowgreen; /* Change background color when checked */
+        color: black;
     }
 
     .aspect-row td {
@@ -193,21 +209,21 @@
             {% for aspect, attributes in rcmt_data.items() %}
                 <!-- Each aspect -->
                 <tr class="aspect-row">
-                    <th style="width: 100px;">{{ aspect }}</th>
+                    <th style="width: 10%;">{{ aspect }}</th>
                     <td>  
                         <i>Click vào đây để chọn ->     </i>
                         <div class="radio-group">
-                            <input type="radio" id="{{ aspect }}_positive" name="{{ aspect }}" value="positive" {% if ann_data is not none and ann_data[aspect] == 'positive' %}checked{% endif %}>
-                            <label class="custom-radio" for="{{ aspect }}_positive">POS</label>
+                            <input class="ratio_pos" type="radio" id="{{ aspect }}_positive" name="{{ aspect }}" value="positive" {% if ann_data is not none and ann_data[aspect] == 'positive' %}checked{% endif %}>
+                            <label class="custom-radio label_pos" for="{{ aspect }}_positive">POS</label>
                             
-                            <input type="radio" id="{{ aspect }}_negative" name="{{ aspect }}" value="negative" {% if ann_data is not none and ann_data[aspect] == 'negative' %}checked{% endif %}>
-                            <label class="custom-radio" for="{{ aspect }}_negative">NEG</label>
+                            <input class="ratio_neg" type="radio" id="{{ aspect }}_negative" name="{{ aspect }}" value="negative" {% if ann_data is not none and ann_data[aspect] == 'negative' %}checked{% endif %}>
+                            <label class="custom-radio label_neg" for="{{ aspect }}_negative">NEG</label>
                             
-                            <input type="radio" id="{{ aspect }}_neutral" name="{{ aspect }}" value="neutral" {% if ann_data is not none and ann_data[aspect] == 'neutral' %}checked{% endif %}>
-                            <label class="custom-radio" for="{{ aspect }}_neutral">NEU</label>
+                            <input class="ratio_neu" type="radio" id="{{ aspect }}_neutral" name="{{ aspect }}" value="neutral" {% if ann_data is not none and ann_data[aspect] == 'neutral' %}checked{% endif %}>
+                            <label class="custom-radio label_neu" for="{{ aspect }}_neutral">NEU</label>
                             
-                            <input type="radio" id="{{ aspect }}_not_mentioned" name="{{ aspect }}" value="not_mentioned" {% if ann_data is not none and ann_data[aspect] == 'not_mentioned' %}checked{% endif %}>
-                            <label class="custom-radio" for="{{ aspect }}_not_mentioned">NM</label>
+                            <input class="ratio_nm" type="radio" id="{{ aspect }}_not_mentioned" name="{{ aspect }}" value="not_mentioned" {% if ann_data is not none and ann_data[aspect] == 'not_mentioned' %}checked{% endif %}>
+                            <label class="custom-radio label_nm" for="{{ aspect }}_not_mentioned">NM</label>
                         </div>
                     </td>
                 </tr>

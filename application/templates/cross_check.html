@@ -96,6 +96,17 @@
         text-align: left; /* Align text within the div to the left */
         flex-direction: column; /* Ensures each child is on a new line */
     }
+
+    .stroke-text {
+        font-size: 23px;
+        color: white; /* Color of the stroke */
+        text-shadow:
+            -1px -1px 0 #000,  
+            1px -1px 0 #000,
+            -1px  1px 0 #000,
+            1px  1px 0 #000; /* Adjust the shadow offsets as needed */
+    }
+
 </style>
 
 <!-- Extract cross checking reviews -->
@@ -119,11 +130,33 @@
         <table>
             {% for aspect, attributes in rcmt_data.items() %}
                 <!-- Each aspect -->
+                {% set filtered_values = [] %}
+                {% for item in attributes.values() %}
+                    {% if item is not none %}
+                        {% set _ = filtered_values.append(item) %}
+                    {% endif %}
+                {% endfor %}
+                {% set count = filtered_values | length  + 1 %}
+
                 <tr class="aspect-row">
-                    <th colspan="2">{{ aspect }}</th>
-                    <td>
-                        {% if ann_data is none %} Chưa gán {% else %} <strong>{{ ann_data[aspect] }}</strong> {% endif %}
-                        <!-- {{ "Chưa gán" if ann_data[aspect] is none else ann_data[aspect] }} -->
+                    <th colspan="2" style="width: 85%;">{{ aspect }}</th>
+                    <td rowspan="{{ count }}" style="text-align: center;">
+                        {% if ann_data is not none %}
+                            {% if ann_data[aspect] == 'positive' %}
+                                {% set a = 'POSITIVE' %}
+                                {% set color = 'greenyellow' %}
+                            {% elif ann_data[aspect] == 'negative' %}
+                                {% set a = 'NEGATIVE' %}
+                                {% set color = 'red' %}
+                            {% elif ann_data[aspect] == 'NEU' %}
+                                {% set a = 'NEUTRAL' %}
+                                {% set color = 'gray' %}
+                            {% else %}
+                                {% set a = 'NOT_MENTIONED' %}
+                                {% set color = 'black' %}
+                            {% endif %}
+                        {% endif %}
+                        <strong class="stroke-text" style="color: {{ color }};">{{ a }}</strong>
                     </td>
                 </tr>
                 {% for attribute, value in attributes.items() %}
@@ -135,7 +168,6 @@
                         {% else %}
                             <td>{{ value }}</td>
                         {% endif %}
-                        <td></td> <!-- Add an empty column for the select option -->
                     </tr>
                     {% endif %}
                 {% endfor %}
