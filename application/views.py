@@ -320,8 +320,6 @@ def annotate():
         aspects = recruitment_data.keys()
         aspect_level, label, explanation, is_done = get_form_data(aspects, request.form)
 
-        print(label)
-
         if not label:
             flash(f'The label checkbox must be chosen in at least one option!', category='error')
             return redirect(url_for('views.annotate', index=rcmt_idx))

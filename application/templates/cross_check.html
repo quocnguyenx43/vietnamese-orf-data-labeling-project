@@ -111,17 +111,42 @@
 {% endif %}
 
 
+<hr>
+
 <!-- cross-checking -->
 <form action="{{ url_for('views.cross_check', index=current_idx) }}" method="post">
     <!-- cross-checking Input -->
 
     <div class="cross-checking-inputs">
-        <label for="is_ccepted">Okay or not?</label>
-        <input type="checkbox" id="is_accepted" name="is_accepted" {% if is_accepted %}checked{% endif %}>
+        <div class="label-div">
+            <label for="is_accepted" class="checkbox-label"><strong>Okay or not?</strong></label>
+            <input type="checkbox" id="is_accepted" name="is_accepted" {% if is_accepted %}checked{% endif %}>
+        </div>
+
+        <style>
+            /* Adjust the size of the checkboxes */
+            input[type="checkbox"] {
+                transform: scale(1.5); /* increase size by 20% */
+                margin-right: 10px; /* add some space between checkboxes */
+                margin-left: 5px;
+            }
+
+            /* Display checkboxes in the same line */
+            .label-div {
+                display: inline-block;
+            }
+
+            /* Highlight label and checkbox on hover */
+            .checkbox-label:hover,
+            input[type="checkbox"]:hover {
+                background-color: lightblue;
+                cursor: pointer;
+            }
+        </style>
 
         <br>
 
-        <label for="cross_check_review">Viết câu cross-checking review:</label>
+        <label for="cross_check_review"><strong>Viết câu cross-checking review:</strong></label>
         <textarea name="cross_check_review" id="cross_check_review" rows="2" style="width: 100%;">{{ cross_check_review }}</textarea>
     </div>
 
@@ -130,10 +155,11 @@
         <input type="submit" value="Submit">
     </div>
     <br>
+    <hr>
 
     <!-- View Data -->
-    User này đã đọc và review lại từ nhận xét của bạn: <strong>{{ is_done }}</strong>
-    <hr>
+    <label for="">User này đã đọc và review lại từ nhận xét của bạn:</label> <strong> {% if is_done %} <span style="color: #4CAF50;">Đã xem</span> {% else %} <span style="color: black;">Chưa</span> {% endif %} </strong>
+    <br>
     <label for="label">Nhãn:</label> {% if ann_data is none %} Chưa gán {% else %} <strong>{{ ann_data['label'] }}</strong> {% endif %}
     <br>
     <label for="explanation">Câu giải thích:</label> {% if ann_data is none %} Chưa gán {% else %} <strong>{{ ann_data['explanation'] }}</strong> {% endif %}
