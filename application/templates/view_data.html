@@ -10,6 +10,13 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
+
+    .left-content {
+        display: flex;
+        justify-content: center; /* Center the content horizontally */
+        text-align: left; /* Align text within the div to the left */
+        flex-direction: column; /* Ensures each child is on a new line */
+    }
 </style>
 
 <!-- Select -->
@@ -26,8 +33,10 @@
     <button type="submit" name="action" value="download">Tải dữ liệu</button>
 </form>
 
+<br>
+
 <!-- Data -->
-<div style="overflow-x: auto">
+<div style="overflow-x: auto; text-align: left;">
     <table id="data" class="table table-condensed table-bordered table-hover table-striped">
         <thead>
             <tr>

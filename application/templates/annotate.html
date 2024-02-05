@@ -224,11 +224,11 @@
                             <input class="ratio_neg" type="radio" id="{{ aspect }}_negative" name="{{ aspect }}" value="negative" {% if ann_data is not none and ann_data[aspect] == 'negative' %}checked{% endif %}>
                             <label class="custom-radio label_neg" for="{{ aspect }}_negative">NEG</label>
                             
-                            <input class="ratio_neu" type="radio" id="{{ aspect }}_neutral" name="{{ aspect }}" value="neutral" {% if ann_data is not none and ann_data[aspect] == 'neutral' %}checked{% endif %}>
-                            <label class="custom-radio label_neu" for="{{ aspect }}_neutral">NEU</label>
-                            
                             <input class="ratio_nm" type="radio" id="{{ aspect }}_not_mentioned" name="{{ aspect }}" value="not_mentioned" {% if ann_data is not none and ann_data[aspect] == 'not_mentioned' %}checked{% endif %}>
                             <label class="custom-radio label_nm" for="{{ aspect }}_not_mentioned">NM</label>
+                            
+                            <input class="ratio_neu" type="radio" id="{{ aspect }}_neutral" name="{{ aspect }}" value="neutral" {% if ann_data is not none and ann_data[aspect] == 'neutral' %}checked{% endif %}>
+                            <label class="custom-radio label_neu" for="{{ aspect }}_neutral">NEU</label>
                         </div>
                     </td>
                 </tr>

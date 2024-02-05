@@ -81,6 +81,9 @@ def admin():
 
     monitors_results.pop('admin', None)
 
+    # check user session
+    
+
     return render_template(
         "admin.html",
         user=current_user,
@@ -325,11 +328,15 @@ def annotate():
         aspects = recruitment_data.keys()
         aspect_level, label, explanation, is_done = get_form_data(aspects, request.form)
 
+        # Handle labeling error
         if not label:
             flash(f'The label checkbox must be chosen in at least one option!', category='error')
             return redirect(url_for('views.annotate', index=rcmt_idx))
         
-
+        if len([value for value in aspect_level.values() if value is not None]) != 5:
+            flash(f'The aspect label must be chosen in at least one option for all!', category='error')
+            return redirect(url_for('views.annotate', index=rcmt_idx))
+            
         # Download backup
         download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
 
