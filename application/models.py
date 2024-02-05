@@ -2,6 +2,7 @@
 from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
+from datetime import datetime
 
 
 # User
@@ -82,6 +83,9 @@ class Annotation(db.Model):
 
     # Explanation
     explanation = db.Column(db.String(200))
+    
+    # date = db.Column(db.DateTime, default=datetime.utcnow().astimezone(pytz.timezone('Asia/Ho_Chi_Minh')))
+    date = db.Column(db.DateTime, default=datetime.now())
 
 
 class CrossCheckReviews(db.Model):
@@ -93,3 +97,6 @@ class CrossCheckReviews(db.Model):
     cross_check_review = db.Column(db.String(200))
     is_accepted = db.Column(db.Boolean, default=False)
     is_done = db.Column(db.Boolean, default=False)
+
+    # date = db.Column(db.DateTime, default=datetime.utcnow().astimezone(pytz.timezone('Asia/Ho_Chi_Minh')))
+    date = db.Column(db.DateTime, default=datetime.now())

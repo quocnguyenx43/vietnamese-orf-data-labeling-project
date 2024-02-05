@@ -350,7 +350,7 @@ def annotate():
                 cross_check_review,
                 is_accepted,
                 is_done,
-                db,
+                db
             )
         flash(f'Gán / cập nhật nhãn mẫu dữ liệu số {rcmt_idx} thành công, chuyển tiếp đến mẫu kế tiếp!', category='success')
 
