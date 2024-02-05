@@ -28,7 +28,8 @@ def login():
                 # Download backup data successfully
                 download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
                 flash('Tải dabase backup từ Google Drive về hệ thống thành công !!!')
-                return redirect(url_for('views.home'))
+                # return redirect(url_for('views.home'))
+                return redirect(url_for('views.phao_bong'))
             else:
                 flash('Mật khẩu không chính xác, vui lòng thử lại!', category='error')
         else:

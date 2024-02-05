@@ -36,6 +36,11 @@ index_to_name = {
 def home():
     return render_template("home.html", user=current_user)
 
+# Home handle
+@views.route('/')
+@views.route('/phao_bong/')
+def phao_bong():
+    return render_template("phao_bong.html", user=current_user)
 
 # Admin page handle
 @views.route('/admin/', methods=['GET', 'POST'])
