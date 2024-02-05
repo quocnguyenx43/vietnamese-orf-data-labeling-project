@@ -64,9 +64,7 @@
     .toggle-item:hover {
         background-color: lightgray;
     }
-</style>
-
-<style>
+    
     /* Add custom CSS styles */
     table {
         border-collapse: collapse;
@@ -135,6 +133,43 @@
         padding-left: 20px;
         margin-bottom: 0;
     }
+    
+    .radio-group {
+        display: flex;
+    }
+
+    .radio-group input[type="radio"] {
+        display: none;
+    }
+
+    .custom-radio {
+        display: inline-block;
+        width: 50px; /* Adjust width as needed */
+        height: 50px; /* Set height equal to width for square shape */
+        line-height: 50px; /* Center the label vertically */
+        text-align: center; /* Center the label horizontally */
+        background-color: #ccc;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 0;
+    }
+
+    .custom-radio:hover {
+        background-color: #ddd; /* Change background color on hover */
+    }
+
+    .radio-group input[type="radio"]:checked + label {
+        background-color: #007bff; /* Change background color when checked */
+        color: #fff;
+    }
+
+    .aspect-row td {
+        text-align: right; /* Center the content horizontally */
+    }
+
+    .radio-group {
+        display: inline-block; /* Ensure the div behaves like an inline-block element */
+    }
 </style>
 
 <!-- Extract annotation -->
@@ -153,19 +188,27 @@
 
     <!-- Data -->
     <div class="right-container left-content">
+
         <table>
             {% for aspect, attributes in rcmt_data.items() %}
                 <!-- Each aspect -->
                 <tr class="aspect-row">
-                    <th colspan="2">{{ aspect }}</th>
-                    <td>
-                        <select name="{{ aspect }}" required>
-                            <option value=""><strong>Bạn chưa chọn</strong></option>
-                            <option value="negative" {% if ann_data is not none and ann_data[aspect] == 'negative' %}selected{% endif %}>negative</option>
-                            <option value="neutral" {% if ann_data is not none and ann_data[aspect] == 'neutral' %}selected{% endif %}>neutral</option>
-                            <option value="positive" {% if ann_data is not none and ann_data[aspect] == 'positive' %}selected{% endif %}>positive</option>
-                            <option value="not_mentioned" {% if ann_data is not none and ann_data[aspect] == 'not_mentioned' %}selected{% endif %}>not mentioned</option>
-                        </select>
+                    <th style="width: 100px;">{{ aspect }}</th>
+                    <td>  
+                        <i>Click vào đây để chọn ->     </i>
+                        <div class="radio-group">
+                            <input type="radio" id="{{ aspect }}_positive" name="{{ aspect }}" value="positive" {% if ann_data is not none and ann_data[aspect] == 'positive' %}checked{% endif %}>
+                            <label class="custom-radio" for="{{ aspect }}_positive">POS</label>
+                            
+                            <input type="radio" id="{{ aspect }}_negative" name="{{ aspect }}" value="negative" {% if ann_data is not none and ann_data[aspect] == 'negative' %}checked{% endif %}>
+                            <label class="custom-radio" for="{{ aspect }}_negative">NEG</label>
+                            
+                            <input type="radio" id="{{ aspect }}_neutral" name="{{ aspect }}" value="neutral" {% if ann_data is not none and ann_data[aspect] == 'neutral' %}checked{% endif %}>
+                            <label class="custom-radio" for="{{ aspect }}_neutral">NEU</label>
+                            
+                            <input type="radio" id="{{ aspect }}_not_mentioned" name="{{ aspect }}" value="not_mentioned" {% if ann_data is not none and ann_data[aspect] == 'not_mentioned' %}checked{% endif %}>
+                            <label class="custom-radio" for="{{ aspect }}_not_mentioned">NM</label>
+                        </div>
                     </td>
                 </tr>
                 {% for attribute, value in attributes.items() %}
@@ -177,7 +220,6 @@
                         {% else %}
                             <td>{{ value }}</td>
                         {% endif %}
-                        <td></td> <!-- Add an empty column for the select option -->
                     </tr>
                     {% endif %}
                 {% endfor %}
