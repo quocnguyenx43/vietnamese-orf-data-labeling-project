@@ -29,116 +29,142 @@
     th {
         background-color: #f2f2f2;
     }
+
+    .container {
+        width: 75%;
+    }
+
+    .left-content {
+        display: flex;
+        justify-content: center; /* Center the content horizontally */
+        text-align: left; /* Align text within the div to the left */
+        flex-direction: column; /* Ensures each child is on a new line */
+    }
 </style>
 
-<h1>Monitor</h1>
-<table>
-    <thead>
-        <tr>
-            <th>Annotators</th>
-            <th>Hoàn thành gán nhãn</th>
-            <th>Hoàn thành cross-checks</th>
-            <th>Số lượng</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for key, value in monitors.items() %}
+<div class="container">
+    <h1>Monitor</h1>
+    <table>
+        <thead>
             <tr>
-                <td><strong>{{ key }}</strong></td>
-                <td>{{ value[0] }}</td>
-                <td>{{ value[1] }}</td>
-                <td>{{ value[2] }}</td>
+                <th>Annotators</th>
+                <th>Hoàn thành gán nhãn</th>
+                <th>Hoàn thành cross-checks</th>
+                <th>Số lượng</th>
             </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            {% for key, value in monitors.items() %}
+                <tr>
+                    <td><strong>{{ key }}</strong></td>
+                    <td>{{ value[0] }}</td>
+                    <td>{{ value[1] }}</td>
+                    <td>{{ value[2] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
 
 
-<h1>User List</h1>
-<table class="table user-list">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Email</th>
-            <th>Username</th>
-            <th>Is Admin</th>
-            <th>Validated User ID</th>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for user in users %}
+    <h1>User List</h1>
+    <table class="table user-list">
+        <thead>
             <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.username }}</td>
-                <td>{{ "Yes" if user.is_admin else "No" }}</td>
-                <td>{{ user.validated_user_id }}</td>
-                <td>
-                    <button class="btn btn-primary btn-sm edit-button" data-id="{{ user.id }}">Edit</button></td>
-                <td>
-                    <form method="post" action="{{ url_for('views.remove_user', user_id=user.id) }}">
-                        <input type="hidden" name="_method" value="DELETE">
-                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                    </form>
-                </td>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Username</th>
+                <th>Is Admin</th>
+                <th>Validated User ID</th>
+                <th></th>
+                <th></th>
             </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ "Yes" if user.is_admin else "No" }}</td>
+                    <td>{{ user.validated_user_id }}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm edit-button" data-id="{{ user.id }}">Edit</button></td>
+                    <td>
+                        <form method="post" action="{{ url_for('views.remove_user', user_id=user.id) }}">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-<h1>Add User</h1>
-<form method="POST" action="{{ url_for('views.add_user') }}">
-    <div class="form-group">
-        <label for="email">Địa chỉ Email</label>
-        <input type="email" class="form-control" id="email" name="email" placeholder="Nhập Email" />
+    <div class="left-content">
+        <h1>Add User</h1>
+        <form method="POST" action="{{ url_for('views.add_user') }}">
+            <div class="form-group">
+                <label for="email">Địa chỉ Email</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Nhập Email" />
+            </div>
+            <div class="form-group">
+                <label for="username">Nhập tên tài khoản</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Nhập tên tài khoản" />
+            </div>
+            <div class="form-group">
+                <label for="password">Mật khẩu</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Nhập mật khẩu" />
+            </div>
+            <div class="form-group">
+                <label for="is_admin">Admin</label>
+                <input type="checkbox" class="form-control" id="is_admin" name="is_admin"/>
+            </div>
+            <div class="form-group">
+                <label for="validated_user_id">User được cross-checking</label>
+                <input type="number" class="form-control" id="validated_user_id" name="validated_user_id" placeholder="User được cross-checking" />
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
     </div>
-    <div class="form-group">
-        <label for="username">Nhập tên tài khoản</label>
-        <input type="text" class="form-control" id="username" name="username" placeholder="Nhập tên tài khoản" />
-    </div>
-    <div class="form-group">
-        <label for="password">Mật khẩu</label>
-        <input type="password" class="form-control" id="password" name="password" placeholder="Nhập mật khẩu" />
-    </div>
-    <div class="form-group">
-        <label for="is_admin">Admin</label>
-        <input type="checkbox" class="form-control" id="is_admin" name="is_admin"/>
-    </div>
-    <div class="form-group">
-        <label for="validated_user_id">User được cross-checking</label>
-        <input type="number" class="form-control" id="validated_user_id" name="validated_user_id" placeholder="User được cross-checking" />
-    </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
-</form>
 
-<br>
-<h1>Upload CSV data</h1>
-<h3>File hiện tại: </h3> 
-<strong class="btn-light">{{ files }}</strong>
-<form method="post" action="{{ url_for('views.upload_csv') }}" enctype="multipart/form-data">
-    <input type="file" name="csv_file" accept=".csv">
-    <button type="submit" class="btn btn-primary">Upload CSV data</button>
-</form>
+    <br>
 
-<br>
-<h1>Download Database</h1>
-<p>Bấm nút này để download database về:</p>
-<a href="{{ url_for('views.download_db') }}" download>
-<button>Download Database</button>
-</a>
+    <div class="left-content">
+        <h1>Upload CSV data</h1>
+        <h3>File hiện tại: </h3> 
+        <strong class="btn-light">{{ files }}</strong>
+        <form method="post" action="{{ url_for('views.upload_csv') }}" enctype="multipart/form-data">
+            <input type="file" name="csv_file" accept=".csv">
+            <button type="submit" class="btn btn-primary">Upload CSV data</button>
+        </form>
+    </div>
 
-<br>
-<br>
-<h1>Download & Upload Database - Application Database / Google Drive</h1>
-<p>Bấm nút này để download database được backup từ Google Drive về hệ thống:</p>
-<a href="{{ url_for('views.refresh_from_drive') }}">
-<button>Download từ Google Drive về hệ thống</button>
-</a>
-<a href="{{ url_for('views.upload_to_drive') }}">
-<button>Upload từ hệ thống lên Google Drive</button>
-</a>
+    <br>
+
+    <div class="left-content">
+        <h1>Download Database</h1>
+        <p>Bấm nút này để download database về:</p>
+        <a href="{{ url_for('views.download_db') }}" download>
+            <button>Download Database</but>
+        </a>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="left-content">
+        <h1>Download & Upload Database - Application Database / Google Drive</h1>
+        <p>Bấm nút này để download database được backup từ Google Drive về hệ thống:</p>
+        <a href="{{ url_for('views.refresh_from_drive') }}">
+            <button>Download từ Google Drive về hệ thống</button>
+        </a>
+        <br>
+        <a href="{{ url_for('views.upload_to_drive') }}">
+            <button>Upload từ hệ thống lên Google Drive</button>
+        </a>    
+    </div>
+
+</div>
 
 {% endblock %}

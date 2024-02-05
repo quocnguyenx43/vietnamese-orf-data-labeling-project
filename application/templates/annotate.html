@@ -2,9 +2,15 @@
 {% block title %}GÁN NHÃN{% endblock %}
 {% block content %}
 <h1 align="center">CÔNG CỤ GÁN NHÃN | <a href="https://drive.google.com/drive/folders/1EL6WA2VGSWY4eY02XsOGGTyV1Fpo_e5E?fbclid=IwAR1XxEPc2N1mn8DZPDag6KnhncnXniyh0nqb3aR7xmCEiihdotsPaGe0gTc">GUIDELINE</a></h1>
-
 <!-- Add CSS style for the progress bar -->
 <style>
+    body, html {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
     .progress-bar {
         width: 100%;
         height: 40px;
@@ -60,89 +66,8 @@
     }
 </style>
 
-<!-- Item to toggle -->
-<div class="toggle-item" onclick="toggleInfo(this)">
-    <strong>Bấm vào để xem các mẫu mà bạn chưa gán <span class="arrow">&#9660;</span></strong>
-    <!-- Additional information hidden by default -->
-    <div class="additional-info">{{ indices_incompleted }} <br> <strong>Số lượng</strong>: {{ indices_incompleted|length }}</div>
-</div>
-
-<script>
-    function toggleInfo(item) {
-        // Find the additional information within the item
-        var additionalInfo = item.querySelector('.additional-info');
-        var arrow = item.querySelector('.arrow');
-        
-        // Toggle the visibility of the additional information
-        if (additionalInfo.style.display === 'none') {
-            additionalInfo.style.display = 'block';
-            arrow.innerHTML = '&#9650;'; // Change arrow to up arrow when expanded
-        } else {
-            additionalInfo.style.display = 'none';
-            arrow.innerHTML = '&#9660;'; // Change arrow to down arrow when collapsed
-        }
-    }
-</script>
-
-<div class="progress-bar">
-    <!-- Calculate the percentage of completed tasks -->
-    {% set percentage_completed = (n_completed / last) * 100 %}
-    <!-- Render the completed bar -->
-    <div class="completed-bar" style="width: {{ percentage_completed }}%"></div>
-    <!-- Render the incomplete bar -->
-    <div class="incomplete-bar" style="width: {{ 100 - percentage_completed }}%"></div>
-    <!-- Display the progress text -->
-    <div class="text-success"><strong>{{ n_completed }} / {{ last }} samples đã hoàn thành gán nhãn</strong></div>
-</div>
-
-<br>
-
-<!-- Options -->
-<div class="d-flex justify-content-center">
-    <button class="btn btn-primary mr-3" id="previous" onclick="window.location.href='/annotate/?index={{ rcmt_idx - 1 }}'">
-        <i class="fas fa-arrow-left"></i> Lui lại
-    </button>
-    <button class="btn btn-primary mr-3" id="from-beginning" onclick="window.location.href='/annotate/?index=1'">
-        <i class="fas fa-fast-backward"></i> Gán nhãn từ đầu
-    </button>
-    <button class="btn btn-primary mr-3" id="from-end" onclick="window.location.href='/annotate/?index={{ last }}'">
-        <i class="fas fa-fast-forward"></i> Nhảy đến cuối
-    </button>
-    <button class="btn btn-primary mr-3" id="next" onclick="window.location.href='/annotate/?index={{ rcmt_idx + 1 }}'">
-        <i class="fas fa-arrow-right"></i> Tiếp theo
-    </button>
-</div>
-<br>
-<div class="d-flex justify-content-center">
-    <button class="btn btn-primary mr-3" id="previous" onclick="window.location.href='/annotate/?index={{ indices_samples_not_okay[0] }}'">
-        <i class="fas fa-arrow-left"></i> <strong>(Not Okay)</strong> đầu tiên
-    </button>
-    <button class="btn btn-primary mr-3" id="previous" onclick="window.location.href='/annotate/?index={{ indices_samples_not_okay[left] }}'">
-        <i class="fas fa-fast-backward"></i> <strong>(Not Okay)</strong> lùi lại
-    </button>
-    <button class="btn btn-primary mr-3" id="previous" onclick="window.location.href='/annotate/?index={{ indices_samples_not_okay[right] }}'">
-        <i class="fas fa-fast-forward"></i> <strong>(Not Okay)</strong> tiếp theo
-    </button>
-    <button class="btn btn-primary mr-3" id="previous" onclick="window.location.href='/annotate/?index={{ indices_samples_not_okay[-1] }}'">
-        <i class="fas fa-arrow-right"></i> <strong>(Not Okay)</strong> cuối cùng
-    </button>
-</div>
 <style>
     /* Add custom CSS styles */
-    body, html {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-    }
-    .form-container {
-        display: flex;
-        flex-direction: column; /* Change to column direction */
-        align-items: flex-start;
-        padding: 20px;
-    }
-    form {
-        max-width: 1000px; /* Limit the maximum width of the form */
-    }
     table {
         border-collapse: collapse;
         width: 100%;
@@ -180,99 +105,201 @@
         background-color: lightblue;
         cursor: pointer;
     }
+    
+    .form-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .right-container {
+        width: 75%;
+        padding-right: 10px;
+    }
+
+    .left-container {
+        width: 25%;
+        padding-left: 10px;
+    }
+
+    .left-content {
+        display: flex;
+        justify-content: center; /* Center the content horizontally */
+        text-align: left; /* Align text within the div to the left */
+        flex-direction: column; /* Ensures each child is on a new line */
+    }
+
+    ul {
+        padding-left: 20px;
+        margin-bottom: 0;
+    }
 </style>
 
 <!-- Extract annotation -->
 {% if ann_data is not none %}
-    <h2 class="text-success text-center">Mẫu số <strong>{{ current_idx }}</strong>. Bạn đã gán nhãn mẫu dữ liệu này. Bạn đang cập nhật!</h2>
     {% set label = ann_data['label'] %}
     {% set explanation = ann_data['explanation'] %}
 {% else %}
-    <h2 class="text-danger text-center">Mẫu số <strong>{{ current_idx }}</strong>. Bạn chưa từng gán nhãn mẫu dữ liệu này!</h2>
     {% set label = '' %}
     {% set explanation = '' %}
-{% endif %}
-
-{% if ck_data is not none %}
-<strong>Cross-check review (từ user {{ ck_data.validator_user_id, validator_name }}):</strong>
-<br>
-- <strong>Is Okay?</strong>: {{ ck_data.is_accepted }}
-<br>
-- <strong>Review</strong>: {{ ck_data.cross_check_review }}
-{% else %}
-Chưa có User nào cross-check cho bạn
 {% endif %}
 
 <hr>
 
 <!-- Labeling -->
-<form action="{{ url_for('views.annotate', index=current_idx) }}" method="post">
-    <!-- Labeling Input -->
-    <div class="labeling-inputs">
-        {% if ck_data is not none %}
-        <div class="label-div">
-            <label for="is_done" class="label-for-is-done"><strong>Đánh dấu đã review lại:</strong></label>
-            <input type="checkbox" name="is_done" id="is_done" class="custom-checkbox" {% if ck_data.is_done %}checked{% endif %}>
-        </div>
-        {% endif %}
-        <br>
-
-        <div class="label-div">
-            <label for="labeling-select"><strong>Nhãn:</strong></label>
-            <!-- <select name="labeling_select" id="labeling-select" required>
-                <option value="">Bạn chưa chọn</option>
-                <option value="clean" {% if label == 'clean' %}selected{% endif %}>Clean</option>
-                <option value="seeding" {% if label == 'seeding' %}selected{% endif %}>Seeding</option>
-                <option value="warning" {% if label == 'warning' %}selected{% endif %}>Warning</option>
-            </select> -->
-            <input type="checkbox" name="labeling_checkbox" id="clean-checkbox" value="clean" {% if label == 'clean' %}checked{% endif %}><label for="clean-checkbox" class="checkbox-label">Clean</label>
-            <input type="checkbox" name="labeling_checkbox" id="seeding-checkbox" value="seeding" {% if label == 'seeding' %}checked{% endif %}><label for="seeding-checkbox" class="checkbox-label">Seeding</label>
-            <input type="checkbox" name="labeling_checkbox" id="warning-checkbox" value="warning" {% if label == 'warning' %}checked{% endif %}><label for="warning-checkbox" class="checkbox-label">Warning</label>
-        </div>
-
-        <br>
-        <label for="explanation"><strong>Viết câu giải thích:</strong></label>
-        <!-- <input type="text" name="explanation" id="explanation" maxlength="5000" style="width: 100%;" value={{ explanation }}> -->
-        <textarea name="explanation" id="explanation" rows="2" style="width: 100%;">{{ explanation }}</textarea>
-    </div>
-
-    <!-- Submit button -->
-    <div class="submit-btn text-center">
-        <input type="submit" value="Submit">
-    </div>
-    <br>
+<form action="{{ url_for('views.annotate', index=current_idx) }}" method="post" class="form-container">
 
     <!-- Data -->
-    <table>
-        {% for aspect, attributes in rcmt_data.items() %}
-            <!-- Each aspect -->
-            <tr class="aspect-row">
-                <th colspan="2">{{ aspect }}</th>
-                <td>
-                    <select name="{{ aspect }}" required>
-                        <option value=""><strong>Bạn chưa chọn</strong></option>
-                        <option value="negative" {% if ann_data is not none and ann_data[aspect] == 'negative' %}selected{% endif %}>negative</option>
-                        <option value="neutral" {% if ann_data is not none and ann_data[aspect] == 'neutral' %}selected{% endif %}>neutral</option>
-                        <option value="positive" {% if ann_data is not none and ann_data[aspect] == 'positive' %}selected{% endif %}>positive</option>
-                        <option value="not_mentioned" {% if ann_data is not none and ann_data[aspect] == 'not_mentioned' %}selected{% endif %}>not mentioned</option>
-                    </select>
-                </td>
-            </tr>
-            {% for attribute, value in attributes.items() %}
-                {% if value is not none %}
-                <tr>
-                    <td>{{ attribute }}</td>
-                    {% if attribute == 'body' %}
-                        <td>{{ value|safe }}</td>
-                    {% else %}
-                        <td>{{ value }}</td>
-                    {% endif %}
-                    <td></td> <!-- Add an empty column for the select option -->
+    <div class="right-container left-content">
+        <table>
+            {% for aspect, attributes in rcmt_data.items() %}
+                <!-- Each aspect -->
+                <tr class="aspect-row">
+                    <th colspan="2">{{ aspect }}</th>
+                    <td>
+                        <select name="{{ aspect }}" required>
+                            <option value=""><strong>Bạn chưa chọn</strong></option>
+                            <option value="negative" {% if ann_data is not none and ann_data[aspect] == 'negative' %}selected{% endif %}>negative</option>
+                            <option value="neutral" {% if ann_data is not none and ann_data[aspect] == 'neutral' %}selected{% endif %}>neutral</option>
+                            <option value="positive" {% if ann_data is not none and ann_data[aspect] == 'positive' %}selected{% endif %}>positive</option>
+                            <option value="not_mentioned" {% if ann_data is not none and ann_data[aspect] == 'not_mentioned' %}selected{% endif %}>not mentioned</option>
+                        </select>
+                    </td>
                 </tr>
-                {% endif %}
+                {% for attribute, value in attributes.items() %}
+                    {% if value is not none %}
+                    <tr>
+                        <td>{{ attribute }}</td>
+                        {% if attribute == 'body' %}
+                            <td>{{ value|safe }}</td>
+                        {% else %}
+                            <td>{{ value }}</td>
+                        {% endif %}
+                        <td></td> <!-- Add an empty column for the select option -->
+                    </tr>
+                    {% endif %}
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
-    </table>
+        </table>
+    </div>
+
+    <!-- Labeling Input -->
+    <div class="left-container">
+
+        <div>
+            {% if ann_data is not none %}
+                <h2 class="text-success text-center">Mẫu <strong>{{ current_idx }}</strong>. Đang cập nhật!</h2>
+            {% else %}
+                <h2 class="text-danger text-center">Mẫu <strong>{{ current_idx }}</strong>. Gán lần đầu!</h2>
+            {% endif %}
+
+            <div class="progress-bar" style="margin-bottom: 10px;">
+                <!-- Calculate the percentage of completed tasks -->
+                {% set percentage_completed = (n_completed / last) * 100 %}
+                <!-- Render the completed bar -->
+                <div class="completed-bar" style="width: {{ percentage_completed }}%"></div>
+                <!-- Render the incomplete bar -->
+                <div class="incomplete-bar" style="width: {{ 100 - percentage_completed }}%"></div>
+                <!-- Display the progress text -->
+                <div class="text-success"><strong>{{ n_completed }} / {{ last }} samples đã hoàn thành gán nhãn</strong></div>
+            </div>
+
+            <!-- Item to toggle -->
+            <div class="toggle-item" onclick="toggleInfo(this)" style="background-color: lightpink; border: black; border-radius: 10px;">
+                <strong>Các mẫu chưa gán<span class="arrow">&#9660;</span></strong>
+                <!-- Additional information hidden by default -->
+                <div class="additional-info">{{ indices_incompleted }} <br> <strong>Số lượng</strong>: {{ indices_incompleted|length }}</div>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- Options left right -->
+        <div class="d-flex justify-content-center">
+            <button type="button" class="btn btn-primary mr-3" id="previous" onclick="window.location.href='/annotate/?index={{ rcmt_idx - 1 }}'">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <button type="button" class="btn btn-primary mr-3" id="from-beginning" onclick="window.location.href='/annotate/?index=1'">
+                <i class="fas fa-fast-backward"></i>
+            </button>
+            <button type="button" class="btn btn-primary mr-3" id="from-end" onclick="window.location.href='/annotate/?index={{ last }}'">
+                <i class="fas fa-fast-forward"></i>
+            </button>
+            <button type="button" class="btn btn-primary mr-3" id="next" onclick="window.location.href='/annotate/?index={{ rcmt_idx + 1 }}'">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+        <br>
+        
+        <span><strong>Not ok</strong><span class="left-arrow">&#9666;</span><span class="right-arrow">&#9656;</span></span>
+        <br>
+        <div class="d-flex justify-content-center" style="padding-top: 10px;">
+            <button type="button" class="btn btn-primary mr-3" id="previous" onclick="window.location.href='/annotate/?index={{ indices_samples_not_okay[0] }}'">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <button type="button" class="btn btn-primary mr-3" id="previous" onclick="window.location.href='/annotate/?index={{ indices_samples_not_okay[left] }}'">
+                <i class="fas fa-fast-backward"></i>
+            </button>
+            <button type="button" class="btn btn-primary mr-3" id="previous" onclick="window.location.href='/annotate/?index={{ indices_samples_not_okay[right] }}'">
+                <i class="fas fa-fast-forward"></i>
+            </button>
+            <button type="button" class="btn btn-primary mr-3" id="previous" onclick="window.location.href='/annotate/?index={{ indices_samples_not_okay[-1] }}'">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <hr>
+
+        <div class="left-content">
+            {% if ck_data is not none %}
+            <span><strong >Cross-check Review từ User: </strong>{{ validator_name, ck_data.validator_user_id }}</span>
+            <ul>
+                <li><span><strong>Is Okay: </strong>{{ ck_data.is_accepted }}</span></li>
+                <li><span><strong>Review: </strong>{% if ck_data.cross_check_review %}{{ ck_data.cross_check_review }}{% else %} <span style="font-style: italic; color: chocolate;">(Rỗng)</span> {% endif %}</span></li>
+            </ul>
+            {% else %}
+            <i>Chưa có User nào cross-check cho bạn</i>
+            {% endif %}
+        </div>
+
+        <hr>
+
+        <div class="labeling-container">
+            <div class="labeling-inputs left-content">
+                {% if ck_data is not none %}
+                <div class="label-div">
+                    <label for="is_done" class="label-for-is-done"><strong>Đánh dấu đã review lại:</strong></label>
+                    <input type="checkbox" name="is_done" id="is_done" class="custom-checkbox" {% if ck_data.is_done %}checked{% endif %}>
+                </div>
+                {% endif %}
+
+                <div class="label-div">
+                    <label for="labeling-select"><strong>Nhãn:</strong></label>
+                    <!-- <select name="labeling_select" id="labeling-select" required>
+                        <option value="">Bạn chưa chọn</option>
+                        <option value="clean" {% if label == 'clean' %}selected{% endif %}>Clean</option>
+                        <option value="seeding" {% if label == 'seeding' %}selected{% endif %}>Seeding</option>
+                        <option value="warning" {% if label == 'warning' %}selected{% endif %}>Warning</option>
+                    </select> -->
+                    <input type="checkbox" name="labeling_checkbox" id="clean-checkbox" value="clean" {% if label == 'clean' %}checked{% endif %}><label for="clean-checkbox" class="checkbox-label">Clean</label>
+                    <input type="checkbox" name="labeling_checkbox" id="seeding-checkbox" value="seeding" {% if label == 'seeding' %}checked{% endif %}><label for="seeding-checkbox" class="checkbox-label">Seeding</label>
+                    <input type="checkbox" name="labeling_checkbox" id="warning-checkbox" value="warning" {% if label == 'warning' %}checked{% endif %}><label for="warning-checkbox" class="checkbox-label">Warning</label>
+                </div>
+                
+                <label for="explanation"><strong>Viết câu giải thích:</strong></label>
+                <!-- <input type="text" name="explanation" id="explanation" maxlength="5000" style="width: 100%;" value={{ explanation }}> -->
+                <textarea name="explanation" id="explanation" rows="2" style="width: 100%; height: 250px;">{{ explanation }}</textarea>
+            </div>
+        </div>
+
+        <!-- Submit button -->
+        <div class="submit-btn text-center">
+            <input type="submit" value="Submit">
+        </div>
+    </div>
+
 </form>
 
 <br>
@@ -288,6 +315,21 @@ Chưa có User nào cross-check cho bạn
             });
         });
     });
+
+    function toggleInfo(item) {
+        // Find the additional information within the item
+        var additionalInfo = item.querySelector('.additional-info');
+        var arrow = item.querySelector('.arrow');
+        
+        // Toggle the visibility of the additional information
+        if (additionalInfo.style.display === 'none') {
+            additionalInfo.style.display = 'block';
+            arrow.innerHTML = '&#9650;'; // Change arrow to up arrow when expanded
+        } else {
+            additionalInfo.style.display = 'none';
+            arrow.innerHTML = '&#9660;'; // Change arrow to down arrow when collapsed
+        }
+    }
 </script>
 
 {% endblock %}

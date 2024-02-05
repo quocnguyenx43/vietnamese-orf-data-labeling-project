@@ -35,50 +35,7 @@
     }
 </style>
 
-<div class="progress-bar">
-    <!-- Calculate the percentage of completed tasks -->
-    {% set percentage_completed = (n_completed / last) * 100 %}
-    <!-- Render the completed bar -->
-    <div class="completed-bar" style="width: {{ percentage_completed }}%"></div>
-    <!-- Render the incomplete bar -->
-    <div class="incomplete-bar" style="width: {{ 100 - percentage_completed }}%"></div>
-    <!-- Display the progress text -->
-    <div class="text-success"><strong>{{ n_completed }} / {{ last }} samples đã hoàn thành cross-checked</strong></div>
-</div>
-
-<br>
-
-<!-- Options -->
-<div class="d-flex justify-content-center">
-    <button class="btn btn-primary mr-3" id="previous" onclick="window.location.href='/cross_check/?index={{ rcmt_idx - 1 }}'">
-        <i class="fas fa-arrow-left"></i> Lui lại
-    </button>
-    <button class="btn btn-primary mr-3" id="from-beginning" onclick="window.location.href='/cross_check/?index=1'">
-        <i class="fas fa-fast-backward"></i> Từ đầu
-    </button>
-    <button class="btn btn-primary mr-3" id="from-end" onclick="window.location.href='/cross_check/?index={{ last }}'">
-        <i class="fas fa-fast-forward"></i> Nhảy đến cuối
-    </button>
-    <button class="btn btn-primary mr-3" id="next" onclick="window.location.href='/cross_check/?index={{ rcmt_idx + 1 }}'">
-        <i class="fas fa-arrow-right"></i> Tiếp theo
-    </button>
-</div>
 <style>
-    /* Add custom CSS styles */
-    body, html {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-    }
-    .form-container {
-        display: flex;
-        flex-direction: column; /* Change to column direction */
-        align-items: flex-start;
-        padding: 20px;
-    }
-    form {
-        max-width: 1000px; /* Limit the maximum width of the form */
-    }
     table {
         border-collapse: collapse;
         width: 100%;
@@ -95,100 +52,172 @@
     .submit-btn {
         margin-top: 15px; /* Change this value to adjust the gap */
     }
+
+    /* Adjust the size of the checkboxes */
+    input[type="checkbox"] {
+        transform: scale(1.5); /* increase size by 20% */
+        margin-right: 10px; /* add some space between checkboxes */
+        margin-left: 5px;
+    }
+
+    /* Display checkboxes in the same line */
+    .label-div {
+        display: inline;
+    }
+
+    /* Highlight label and checkbox on hover */
+    .checkbox-label:hover,
+    input[type="checkbox"]:hover {
+        background-color: lightblue;
+        cursor: pointer;
+    }
+
+    .form-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .right-container {
+        width: 75%;
+        padding-right: 10px;
+    }
+
+    .left-container {
+        width: 25%;
+        padding-left: 10px;
+    }
+
+    .left-content {
+        display: flex;
+        justify-content: center; /* Center the content horizontally */
+        text-align: left; /* Align text within the div to the left */
+        flex-direction: column; /* Ensures each child is on a new line */
+    }
 </style>
 
 <!-- Extract cross checking reviews -->
 {% if ck_data is not none %}
-    <h2 class="text-success text-center">Mẫu số <strong>{{ current_idx }}</strong>. Bạn đã cross-checked mẫu dữ liệu này. Bạn đang cập nhật!</h2>
     {% set cross_check_review = ck_data.cross_check_review %}
     {% set is_accepted = ck_data.is_accepted %}
     {% set is_done = ck_data.is_done %}
 {% else %}
-    <h2 class="text-danger text-center">Mẫu số <strong>{{ current_idx }}</strong>. Bạn chưa từng cross-checked mẫu dữ liệu này!</h2>
     {% set cross_check_review = '' %}
     {% set is_accepted = False %}
     {% set is_done = False %}
 {% endif %}
 
-
 <hr>
 
 <!-- cross-checking -->
-<form action="{{ url_for('views.cross_check', index=current_idx) }}" method="post">
-    <!-- cross-checking Input -->
-
-    <div class="cross-checking-inputs">
-        <div class="label-div">
-            <label for="is_accepted" class="checkbox-label"><strong>Okay or not?</strong></label>
-            <input type="checkbox" id="is_accepted" name="is_accepted" {% if is_accepted %}checked{% endif %}>
-        </div>
-
-        <style>
-            /* Adjust the size of the checkboxes */
-            input[type="checkbox"] {
-                transform: scale(1.5); /* increase size by 20% */
-                margin-right: 10px; /* add some space between checkboxes */
-                margin-left: 5px;
-            }
-
-            /* Display checkboxes in the same line */
-            .label-div {
-                display: inline-block;
-            }
-
-            /* Highlight label and checkbox on hover */
-            .checkbox-label:hover,
-            input[type="checkbox"]:hover {
-                background-color: lightblue;
-                cursor: pointer;
-            }
-        </style>
-
-        <br>
-
-        <label for="cross_check_review"><strong>Viết câu cross-checking review:</strong></label>
-        <textarea name="cross_check_review" id="cross_check_review" rows="2" style="width: 100%;">{{ cross_check_review }}</textarea>
-    </div>
-
-    <!-- Submit button -->
-    <div class="submit-btn text-center">
-        <input type="submit" value="Submit">
-    </div>
-    <br>
-    <hr>
+<form action="{{ url_for('views.cross_check', index=current_idx) }}" method="post" class="form-container">
 
     <!-- View Data -->
-    <label for="">User này đã đọc và review lại từ nhận xét của bạn:</label> <strong> {% if is_done %} <span style="color: #4CAF50;">Đã xem</span> {% else %} <span style="color: black;">Chưa</span> {% endif %} </strong>
-    <br>
-    <label for="label">Nhãn:</label> {% if ann_data is none %} Chưa gán {% else %} <strong>{{ ann_data['label'] }}</strong> {% endif %}
-    <br>
-    <label for="explanation">Câu giải thích:</label> {% if ann_data is none %} Chưa gán {% else %} <strong>{{ ann_data['explanation'] }}</strong> {% endif %}
-    <table>
-        {% for aspect, attributes in rcmt_data.items() %}
-            <!-- Each aspect -->
-            <tr class="aspect-row">
-                <th colspan="2">{{ aspect }}</th>
-                <td>
-                    {% if ann_data is none %} Chưa gán {% else %} <strong>{{ ann_data[aspect] }}</strong> {% endif %}
-                    <!-- {{ "Chưa gán" if ann_data[aspect] is none else ann_data[aspect] }} -->
-                </td>
-            </tr>
-            {% for attribute, value in attributes.items() %}
-                {% if value is not none %}
-                <tr>
-                    <td>{{ attribute }}</td>
-                    {% if attribute == 'body' %}
-                        <td>{{ value|safe }}</td>
-                    {% else %}
-                        <td>{{ value }}</td>
-                    {% endif %}
-                    <td></td> <!-- Add an empty column for the select option -->
+    <div class="right-container left-content">
+        <table>
+            {% for aspect, attributes in rcmt_data.items() %}
+                <!-- Each aspect -->
+                <tr class="aspect-row">
+                    <th colspan="2">{{ aspect }}</th>
+                    <td>
+                        {% if ann_data is none %} Chưa gán {% else %} <strong>{{ ann_data[aspect] }}</strong> {% endif %}
+                        <!-- {{ "Chưa gán" if ann_data[aspect] is none else ann_data[aspect] }} -->
+                    </td>
                 </tr>
-                {% endif %}
+                {% for attribute, value in attributes.items() %}
+                    {% if value is not none %}
+                    <tr>
+                        <td>{{ attribute }}</td>
+                        {% if attribute == 'body' %}
+                            <td>{{ value|safe }}</td>
+                        {% else %}
+                            <td>{{ value }}</td>
+                        {% endif %}
+                        <td></td> <!-- Add an empty column for the select option -->
+                    </tr>
+                    {% endif %}
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
-    </table>
-    <br>
+        </table>
+    </div>
+
+    <!-- cross-checking Input -->
+    <div class="left-container">
+
+        <div>
+            <!-- Extract cross checking reviews -->
+            {% if ck_data is not none %}
+                <h2 class="text-success text-center">Mẫu <strong>{{ current_idx }}</strong>. Đang cập nhật!</h2>
+            {% else %}
+                <h2 class="text-danger text-center">Mẫu <strong>{{ current_idx }}</strong>. Gán lần đầu!</h2>
+            {% endif %}
+
+            <div class="progress-bar">
+                <!-- Calculate the percentage of completed tasks -->
+                {% set percentage_completed = (n_completed / last) * 100 %}
+                <!-- Render the completed bar -->
+                <div class="completed-bar" style="width: {{ percentage_completed }}%"></div>
+                <!-- Render the incomplete bar -->
+                <div class="incomplete-bar" style="width: {{ 100 - percentage_completed }}%"></div>
+                <!-- Display the progress text -->
+                <div class="text-success"><strong>{{ n_completed }} / {{ last }} samples</strong>
+            </div>
+        </div>
+        </div>
+
+        <hr>
+
+        <!-- Options -->
+        <div class="d-flex justify-content-center">
+            <button type="button" class="btn btn-primary mr-3" id="previous" onclick="window.location.href='/cross_check/?index={{ rcmt_idx - 1 }}'">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <button type="button" class="btn btn-primary mr-3" id="from-beginning" onclick="window.location.href='/cross_check/?index=1'">
+                <i class="fas fa-fast-backward"></i>
+            </button>
+            <button type="button" class="btn btn-primary mr-3" id="from-end" onclick="window.location.href='/cross_check/?index={{ last }}'">
+                <i class="fas fa-fast-forward"></i>
+            </button>
+            <button type="button" class="btn btn-primary mr-3" id="next" onclick="window.location.href='/cross_check/?index={{ rcmt_idx + 1 }}'">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <hr>
+
+        <div class="left-content">
+            <span><strong>Nhãn: </strong>{% if ann_data is none %}NULL{% else %}{{ ann_data['label'] }}{% endif %}</span>
+            <span><strong>Câu giải thích: </strong>{% if ann_data is none %}NULL{% else %}{{ ann_data['explanation'] }}{% endif %}</span>
+        </div>
+
+        <hr>
+
+        <div class="left-content">
+            <span><strong>User đã đọc nhận xét từ bạn: </strong>{% if is_done %}Đã xem{% else %}Chưa{% endif %}</span>
+        </div>
+
+        <hr>
+
+        <div style="text-align: left;">
+            <div>
+                <label for="is_accepted" class="checkbox-label"><strong>Okay or not?</strong></label>
+                <input type="checkbox" id="is_accepted" name="is_accepted" {% if is_accepted %}checked{% endif %}>
+            </div>
+
+            <label for="cross_check_review"><strong>Viết câu nhận xét:</strong></label>
+            <textarea name="cross_check_review" id="cross_check_review" rows="2" style="width: 100%; height: 200px;">{{ cross_check_review }}</textarea>
+        
+        </div>
+
+        <!-- Submit button -->
+        <div class="submit-btn text-center">
+            <input type="submit" value="Submit">
+        </div>
+
+    </div>
+
 </form>
 
 {% endblock %}

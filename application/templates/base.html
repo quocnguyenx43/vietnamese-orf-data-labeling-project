@@ -46,6 +46,13 @@
         #greeting:hover + #logout {
             display: block;
         }
+
+        .content-container {
+            width: 95%;
+            margin: 0 auto; /* Set margin to 'auto' to center horizontally */
+            text-align: center; /* Center align text content inside the container */
+        }
+
     </style>
 
 </head>
@@ -137,7 +144,7 @@
 
     <!-- Content -->
     <br>
-    <div class="container">{% block content %} {% endblock %}</div>
+    <div class="content-container">{% block content %} {% endblock %}</div>
 
     <!-- Copyright -->
     <footer class="navbar navbar-dark bg-dark text-center py-2" style="margin-top: 50px;">

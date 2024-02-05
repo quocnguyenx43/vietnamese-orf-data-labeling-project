@@ -26,7 +26,7 @@ def login():
                 login_user(user, remember=True)
                 flash('Đăng nhập thành công!', category='success')
                 # Download backup data successfully
-                # download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
+                download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
                 flash('Tải dabase backup từ Google Drive về hệ thống thành công !!!')
                 return redirect(url_for('views.home'))
             else:

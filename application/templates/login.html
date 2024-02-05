@@ -1,17 +1,81 @@
 {% extends "base.html" %}
 {% block title %}ĐĂNG NHẬP{% endblock %}
 {% block content %}
-<form method="POST">
-    <h3 align="center">ĐĂNG NHẬP</h3>
-    <div class="form-group">
-        <label for="username">Tên tài khoản</label>
-        <input type="username" class="form-control" id="username" name="username" placeholder="Nhập tên tài khoản" />
+
+<style>
+    .container {
+        display: flex;
+        justify-content: center; /* Aligns items at both ends */
+        align-items: center; /* Center vertically */
+        width: 40%;
+        height: 100px;
+        margin: 0 auto; /* Center the container */
+    }
+
+    .form-wrapper {
+        flex-grow: 1; /* Allows the form to grow and take up remaining space */
+        margin-right: 10px; /* Adds space between the form and the button */
+    }
+
+    .form-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group {
+        display: flex;
+        align-items: center;
+        margin: 0;
+    }
+
+    .label {
+        display: inline-block;
+        text-align: left; /* Align label content to the left */
+        width: 20%;
+        padding-right: 10px;
+    }
+
+    .input {
+        flex: 1;
+    }
+
+    .left-content {
+        display: flex;
+        justify-content: center; /* Center the content horizontally */
+        text-align: left; /* Align text within the div to the left */
+        flex-direction: column; /* Ensures each child is on a new line */
+    }
+
+    .button-wrapper {
+        display: flex;
+        justify-content: flex-end; /* Align button to the right */
+    }
+</style>
+
+<h3 align="center">ĐĂNG NHẬP</h3>
+<br>
+<div class="container">
+    <div class="form-wrapper">
+        <form method="POST" class="form-container">
+            <div class="form-group">
+                <label for="username" class="label">Tên tài khoản: </label>
+                <input type="username" class="form-control input" id="username" name="username" placeholder="Nhập tên tài khoản" />
+            </div>
+
+            <div class="form-group" style="margin-top: 10px;">
+                <label for="password" class="label">Mật khẩu: </label>
+                <input type="password" class="form-control input" id="password" name="password" placeholder="Nhập mật khẩu" />
+            </div>
+
+            <br>
+            <div class="button-wrapper">
+                <button type="submit" class="btn btn-primary btn-submit">Login</button>
+            </div>
+        </form>
     </div>
-    <div class="form-group">
-        <label for="password">Mật khẩu</label>
-        <input type="password" class="form-control" id="password" name="password" placeholder="Nhập mật khẩu" />
-    </div>
-    <br />
-    <button type="submit" class="btn btn-primary">Login</button>
-</form>
+</div>
+
+
+
+
 {% endblock %}
