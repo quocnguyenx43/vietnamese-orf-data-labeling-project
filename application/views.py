@@ -320,11 +320,17 @@ def annotate():
         aspects = recruitment_data.keys()
         aspect_level, label, explanation, is_done = get_form_data(aspects, request.form)
 
+        print(label)
+
+        if not label:
+            flash(f'The label checkbox must be chosen in at least one option!', category='error')
+            return redirect(url_for('views.annotate', index=rcmt_idx))
+
         # Download backup
         download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
 
         # Insert data thành công
-        insert_annotation(rcmt_id, current_user.id, aspect_level, label, explanation, db)
+        insert_annotation(rcmt_id, current_user.id, aspect_level, label[0], explanation, db)
         if cross_check_data:
             insert_cross_check_review(
                 rcmt_id,

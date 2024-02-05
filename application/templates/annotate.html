@@ -237,13 +237,55 @@ Chưa có User nào cross-check cho bạn
             <input type="checkbox" id="is_done" name="is_done" class="custom-checkbox" {% if ck_data.is_done %}checked{% endif %}>
         {% endif %}
         <br>
-        <label for="labeling-select"><strong>Nhãn:</strong></label>
-        <select name="labeling_select" id="labeling-select" required>
-            <option value="">Bạn chưa chọn</option>
-            <option value="clean" {% if label == 'clean' %}selected{% endif %}>Clean</option>
-            <option value="seeding" {% if label == 'seeding' %}selected{% endif %}>Seeding</option>
-            <option value="warning" {% if label == 'warning' %}selected{% endif %}>Warning</option>
-        </select>
+
+        <div class="label-div">
+            <label for="labeling-select"><strong>Nhãn:</strong></label>
+            <!-- <select name="labeling_select" id="labeling-select" required>
+                <option value="">Bạn chưa chọn</option>
+                <option value="clean" {% if label == 'clean' %}selected{% endif %}>Clean</option>
+                <option value="seeding" {% if label == 'seeding' %}selected{% endif %}>Seeding</option>
+                <option value="warning" {% if label == 'warning' %}selected{% endif %}>Warning</option>
+            </select> -->
+            <input type="checkbox" name="labeling_checkbox" id="clean-checkbox" value="clean" {% if label == 'clean' %}checked{% endif %}><label for="clean-checkbox" class="checkbox-label">Clean</label>
+            <input type="checkbox" name="labeling_checkbox" id="seeding-checkbox" value="seeding" {% if label == 'seeding' %}checked{% endif %}><label for="seeding-checkbox" class="checkbox-label">Seeding</label>
+            <input type="checkbox" name="labeling_checkbox" id="warning-checkbox" value="warning" {% if label == 'warning' %}checked{% endif %}><label for="warning-checkbox" class="checkbox-label">Warning</label>
+        </div>
+
+        <style>
+            /* Adjust the size of the checkboxes */
+            input[type="checkbox"] {
+                transform: scale(1.5); /* increase size by 20% */
+                margin-right: 10px; /* add some space between checkboxes */
+                margin-left: 20px;
+            }
+
+            /* Display checkboxes in the same line */
+            .label-div {
+                display: inline-block;
+            }
+
+            /* Highlight label and checkbox on hover */
+            .checkbox-label:hover,
+            input[type="checkbox"]:hover {
+                background-color: lightblue;
+                cursor: pointer;
+            }
+        </style>
+
+        <script>
+            // Function to ensure only one checkbox can be checked
+            var checkboxes = document.querySelectorAll('input[type="checkbox"][name="labeling_checkbox"]');
+            checkboxes.forEach(function(checkbox) {
+                checkbox.addEventListener('change', function() {
+                    checkboxes.forEach(function(c) {
+                        if (c !== checkbox) {
+                            c.checked = false;
+                        }
+                    });
+                });
+            });
+        </script>
+
         <br>
         <label for="explanation"><strong>Viết câu giải thích:</strong></label>
         <!-- <input type="text" name="explanation" id="explanation" maxlength="5000" style="width: 100%;" value={{ explanation }}> -->

@@ -182,7 +182,8 @@ def get_samples_not_okay(u_id):
     return cross_check_reviews
     
 def get_form_data(aspects, form):
-    label = form.get('labeling_select')
+    # label = form.get('labeling_select')
+    label = request.form.getlist('labeling_checkbox')
     explanation = request.form.get('explanation')
     is_done = bool(request.form.get('is_done'))
 
