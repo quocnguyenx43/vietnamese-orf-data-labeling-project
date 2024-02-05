@@ -326,7 +326,7 @@ def annotate():
         
 
         # Download backup
-        # download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
+        download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
 
         # # Insert data thành công
         insert_annotation(rcmt_id, current_user.id, aspect_level, label[0], explanation, db)
@@ -343,7 +343,7 @@ def annotate():
         flash(f'Gán / cập nhật nhãn mẫu dữ liệu số {rcmt_idx} thành công, chuyển tiếp đến mẫu kế tiếp!', category='success')
 
         # Backup thành công
-        # upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
+        upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
         flash('Upload dabase backup từ hệ thống lên Google Drive thành công !!!')
         return redirect(url_for('views.annotate', index=int(rcmt_idx) + 1))
     
