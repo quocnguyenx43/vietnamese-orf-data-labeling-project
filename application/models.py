@@ -85,7 +85,7 @@ class Annotation(db.Model):
     explanation = db.Column(db.String(200))
     
     # date = db.Column(db.DateTime, default=datetime.utcnow().astimezone(pytz.timezone('Asia/Ho_Chi_Minh')))
-    date = db.Column(db.DateTime, default=datetime.now() + timedelta(hours=6))
+    date = db.Column(db.DateTime, default=datetime.now() + timedelta(hours=7))
 
 
 class CrossCheckReviews(db.Model):
@@ -99,4 +99,4 @@ class CrossCheckReviews(db.Model):
     is_done = db.Column(db.Boolean, default=False)
 
     # date = db.Column(db.DateTime, default=datetime.utcnow().astimezone(pytz.timezone('Asia/Ho_Chi_Minh')))
-    date = db.Column(db.DateTime, default=datetime.now() + timedelta(hours=6))
+    date = db.Column(db.DateTime, default=datetime.now() + timedelta(hours=7))
