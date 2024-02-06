@@ -117,7 +117,7 @@ def add_user():
         )
         db.session.add(new_user)
         db.session.commit()
-        flash('Thêm user thành công.', 'success')
+        flash('Thêm user thành công!', 'success')
         return redirect(url_for('views.admin'))
 
     return render_template('views.admin')
@@ -136,9 +136,9 @@ def remove_user(user_id):
         if user:
             db.session.delete(user)
             db.session.commit()
-            flash('Xóa user thành công.', 'success')
+            flash('Xóa user thành công!', 'success')
         else:
-            flash('User không tồn tại.', 'danger')
+            flash('User không tồn tại!', 'danger')
 
         return redirect(url_for('views.admin'))
 
@@ -163,15 +163,15 @@ def upload_csv():
             # Save file as current csv_file
             filename = csv_file.filename
             csv_file.save('data/' + filename)
-            flash('Upload thành công.', 'success')
+            flash('Tải lên file CSV thành công!', 'success')
 
             # Populate data into db
             import pandas as pd
             populate_data(db, pd.read_csv('data/' + filename))
-            flash('Populate thành công.', 'success')
+            flash('Populate data thành công!', 'success')
             
         else:
-            flash('File không hợp lệ.', 'danger')
+            flash('File không hợp lệ!', 'danger')
 
     return redirect(url_for('views.admin'))
 
@@ -244,7 +244,7 @@ def refresh_from_drive():
         return "Không có quyền truy cập vào trang quản trị admin.", 403
     
     download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
-    flash('Tải dabase backup từ Google Drive về hệ thống thành công !!!')
+    flash('Tải backup database từ GG.Drive thành công!', 'success')
     return redirect(url_for('views.admin'))
 
 
@@ -257,7 +257,7 @@ def upload_to_drive():
         return "Không có quyền truy cập vào trang quản trị admin.", 403
     
     upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
-    flash('Upload dabase backup từ hệ thống lên Google Drive thành công !!!')
+    flash('Upload backup database từ GG.Drive thành công!', 'success')
     return redirect(url_for('views.admin'))
 
 
@@ -283,13 +283,13 @@ def annotate():
     try:
         rcmt_idx = int(rcmt_idx)
         if rcmt_idx < 1:
-            flash(f'Index cần phải lớn hơn hoặc bằng 1 ! redirect về index 1. Index bạn yêu cầu: {rcmt_idx}', category='error')
+            flash(f'Index phải lớn hơn hoặc bằng 1 . Index yêu cầu: {rcmt_idx}. Redirect về index 1!', category='error')
             return redirect(url_for('views.annotate', index=1))
         elif rcmt_idx > count:
-            flash(f'Index lớn hơn phạm vi! redirect về index cuối cùng. Index bạn yêu cầu: {rcmt_idx}, tối đa: {count}', category='error')
+            flash(f'Index lớn hơn phạm vi. Index yêu cầu: {rcmt_idx}, tối đa: {count}. Redirect về index cuối cùng!', category='error')
             return redirect(url_for('views.annotate', index=count))
     except ValueError:
-        flash(f'Index không hợp lệ! Index phải là số, redirect về index 1. Index bạn yêu cầu: {rcmt_idx}', category='error')
+        flash(f'Index không hợp lệ! Index phải là số. Index yêu cầu: {rcmt_idx}. Redirect về index 1!', category='error')
         return redirect(url_for('views.annotate', index=1))
     
     
@@ -341,11 +341,11 @@ def annotate():
 
         # Handle labeling error
         if not label:
-            flash(f'The label checkbox must be chosen in at least one option!', category='error')
+            flash(f'Nhãn chính cần được chọn!', 'error')
             return redirect(url_for('views.annotate', index=rcmt_idx))
         
         if len([value for value in aspect_level.values() if value is not None]) != 5:
-            flash(f'The aspect label must be chosen in at least one option for all!', category='error')
+            flash(f'Nhãn khía cạnh cần được chọn!', 'error')
             return redirect(url_for('views.annotate', index=rcmt_idx))
             
         # Download backup
@@ -363,11 +363,11 @@ def annotate():
                 is_done,
                 db
             )
-        flash(f'Gán / cập nhật nhãn mẫu dữ liệu số {rcmt_idx} thành công, chuyển tiếp đến mẫu kế tiếp!', category='success')
+        flash(f'Lưu mẫu {rcmt_idx} thành công!', category='success')
 
         # Backup thành công
         upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
-        flash('Upload dabase backup từ hệ thống lên Google Drive thành công !!!')
+        flash('Upload backup database từ GG.Drive thành công!', 'success')
         return redirect(url_for('views.annotate', index=int(rcmt_idx) + 1))
     
     return render_template(
@@ -409,15 +409,15 @@ def cross_check():
     try:
         rcmt_idx = int(rcmt_idx)
         if rcmt_idx < 1:
-            flash(f'Index cần phải lớn hơn hoặc bằng 1 ! redirect về index 1. Index bạn yêu cầu: {rcmt_idx}', category='error')
+            flash(f'Index phải lớn hơn hoặc bằng 1 . Index yêu cầu: {rcmt_idx}. Redirect về index 1!', category='error')
             return redirect(url_for('views.cross_check', index=1))
         elif rcmt_idx > count:
-            flash(f'Index lớn hơn phạm vi! redirect về index cuối cùng. Index bạn yêu cầu: {rcmt_idx}, tối đa: {count}', category='error')
+            flash(f'Index lớn hơn phạm vi. Index yêu cầu: {rcmt_idx}, tối đa: {count}. Redirect về index cuối cùng!', category='error')
             return redirect(url_for('views.cross_check', index=count))
     except ValueError:
-        flash(f'Index không hợp lệ! Index phải là số, redirect về index 1. Index bạn yêu cầu: {rcmt_idx}', category='error')
+        flash(f'Index không hợp lệ! Index phải là số. Index yêu cầu: {rcmt_idx}. Redirect về index 1!', category='error')
         return redirect(url_for('views.cross_check', index=1))
-    
+
     # Handle GET (to show recruitment data)
     recruitment_data = get_recruitment_data(rcmt_idx, validated_user_id)
     rcmt_id = recruitment_data['other_aspect']['id']
@@ -430,7 +430,7 @@ def cross_check():
         cross_check_review = request.form.get('cross_check_review')
 
         if not cross_check_review.strip() and is_accepted == False:
-            flash(f'Không OKAY thì phải ghi câu giải thích rõ ràng!', category='error')
+            flash(f'Cần thêm review (Trường hợp NOT OKAY)!', category='error')
             return redirect(url_for('views.cross_check', index=rcmt_idx))
 
         # Download backup
@@ -438,11 +438,11 @@ def cross_check():
 
         # Insert data thành công
         insert_cross_check_review(rcmt_id, current_user_id, validated_user_id, cross_check_review, is_accepted, False, db)
-        flash(f'Thêm mới / cập nhật nhãn ý kiến mẫu cross cheked số {rcmt_idx} thành công, chuyển tiếp đến mẫu kế tiếp!', category='success')
+        flash(f'Lưu review mẫu số {rcmt_idx} thành công!', category='success')
 
         # Backup thành công
         upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
-        flash('Upload dabase backup từ hệ thống lên Google Drive thành công !!!')
+        flash('Upload backup database từ GG.Drive thành công!', 'success')
         return redirect(url_for('views.cross_check', index=int(rcmt_idx) + 1))
     
     return render_template(

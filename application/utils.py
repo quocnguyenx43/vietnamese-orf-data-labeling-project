@@ -248,7 +248,7 @@ def insert_cross_check_review(r_id, a_id, b_id, cross_check_review, is_accepted,
         existing_cross_check_review.is_accepted = is_accepted
         existing_cross_check_review.is_done = is_done
         existing_cross_check_review.date = datetime.now() + timedelta(hours=7)
-        flash('Cross check review updated!', category='success')
+        flash('CK Review updated!', category='success')
     else:
         new_cross_check_review = CrossCheckReviews(
             recruitment_id=r_id,
@@ -260,5 +260,5 @@ def insert_cross_check_review(r_id, a_id, b_id, cross_check_review, is_accepted,
             date=datetime.now() + timedelta(hours=7)
         )
         db.session.add(new_cross_check_review)
-        flash('Cross check review added!', category='success')
+        flash('CK Review added!', category='success')
     db.session.commit()

@@ -49,6 +49,58 @@
             text-align: center; /* Center align text content inside the container */
         }
 
+        .alert-container {
+            position: fixed;
+            top: 7.5%; /* Adjust as needed */
+            right: 5px; /* Adjust as needed */
+            z-index: 500; /* Ensure messages appear above other content */
+        }
+
+        .alert-in {
+            border: 1px solid #f5c6cb; /* Adjust as needed */
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add shadow for better visibility */
+            animation: slideInRight 0.5s forwards;
+        }
+
+        .alert-out {
+            border: 1px solid #f5c6cb; /* Adjust as needed */
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add shadow for better visibility */
+            animation: slideOutRight 0.3s ease-in-out forwards, fadeOut 0.3s ease-in-out forwards;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0%);
+            }
+            to {
+                transform: translateX(100%);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
     </style>
 
 </head>
@@ -116,27 +168,25 @@
     </nav>
 
     <!-- Show message -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    {% for category, message in messages %}
-        {% if category == 'error' %}
-            <div class="alert alert-danger alter-dismissable fade show" role="alert">
-                {{ message }}
-                <button type="button" class="close" data-dismiss="alert">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        {% else %}
-        <div class="alert alert-success alter-dismissable fade show" role="alert">
-            {{ message }}
-            <button type="button" class="close" data-dismiss="alert">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        {% endif %}
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
+    <div class="alert-container">
+        <!-- Flash messages will be placed here -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if category == 'error' %}
+                        {% set category = 'danger' %}
+                    {% endif %}
+                    <div class="alert alert-in alert-{{ category }}" role="alert" style="display: none;">
+                        <strong>{{ message }}</strong>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="margin-left: 10px;">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <span class="timer" style="margin-left: 10px;"></span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
 
     <!-- Content -->
     <br>
@@ -156,6 +206,38 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var alerts = document.querySelectorAll('.alert');
+
+        alerts.forEach(function(alert, index) {
+            var timerElement = alert.querySelector('.timer');
+            var secondsDelay = (index) * 350; // Adjust the delay here
+
+            setTimeout(function() {
+                alert.style.display = 'block';
+
+                var secondsRemaining = 10; // Adjust the disappearance duration as needed
+
+                var countdown = setInterval(function() {
+                    secondsRemaining--;
+                    timerElement.textContent = secondsRemaining + 's';
+
+                    if (secondsRemaining <= 0) {
+                        clearInterval(countdown);
+                        alert.classList.remove('alert');
+                        alert.classList.add('alert-out');
+                        // Remove the alert after the transition completes
+                        setTimeout(function() {
+                            alert.remove();
+                        }, 500); // Adjust to match the transition duration
+                    }
+                }, 1000);
+            }, secondsDelay);
+        });
+    });
+</script>
 
 </body>
 </html>

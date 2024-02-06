@@ -27,13 +27,13 @@ def login():
                 flash('Đăng nhập thành công!', category='success')
                 # Download backup data successfully
                 download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
-                flash('Tải dabase backup từ Google Drive về hệ thống thành công !!!')
-                # return redirect(url_for('views.home'))
-                return redirect(url_for('views.phao_bong'))
+                flash('Tải backup database từ GG.Drive thành công!', category='success')
+                return redirect(url_for('views.home'))
+                # return redirect(url_for('views.phao_bong'))
             else:
-                flash('Mật khẩu không chính xác, vui lòng thử lại!', category='error')
+                flash('Mật khẩu không đúng, hãy thử lại!', category='error')
         else:
-            flash('Tên tài khoản không tồn tại!', category='error')
+            flash('Tên tài khoản không tồn tại, hãy thử lại!', category='error')
 
     return render_template("login.html", user=current_user)
 
@@ -70,7 +70,7 @@ def sign_up():
         else:
             # If everything is okay, send mail to admin
             send_mail(email=email, username=username, password=password1)
-            flash('Thông tin tài khoản đã được gửi đến admin, xin chờ phản hồi.', category='success')
+            flash('Thông tin tài khoản đã được gửi đến admin, hãy chờ phản hồi!', category='success')
             return redirect(url_for('views.home'))
 
     return render_template("sign_up.html", user=current_user)
