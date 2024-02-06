@@ -197,14 +197,14 @@ def view_data():
                 data = Recruitment.query.all()
         elif table_selected == 'annotation':
             if limit > 0:
-                data = Annotation.query.order_by(Annotation.date).limit(limit).all()
+                data = Annotation.query.order_by(Annotation.date.desc()).limit(limit).all()
             else:
-                data = Annotation.query.order_by(Annotation.date).all()
+                data = Annotation.query.order_by(Annotation.date.desc()).all()
         elif table_selected == 'cross-checking-reviews':
             if limit > 0:
-                data = CrossCheckReviews.query.order_by(CrossCheckReviews.date).limit(limit).all()
+                data = CrossCheckReviews.query.order_by(CrossCheckReviews.date.desc()).limit(limit).all()
             else:
-                data = CrossCheckReviews.query.order_by(CrossCheckReviews.date).all()
+                data = CrossCheckReviews.query.order_by(CrossCheckReviews.date.desc()).all()
                 
 
         if button_clicked == 'download':
