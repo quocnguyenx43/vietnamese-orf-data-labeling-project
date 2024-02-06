@@ -191,6 +191,42 @@
     .radio-group {
         display: inline-block; /* Ensure the div behaves like an inline-block element */
     }
+
+    #customModal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+
+    /* Modal Content/Box */
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto; /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 70%; /* Could be more or less, depending on screen size */
+    }
+
+    /* The Close Button */
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover, .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
 </style>
 
 <!-- Extract annotation -->
@@ -204,8 +240,17 @@
 
 <hr>
 
+<!-- Custom pop-up modal -->
+<div id="customModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <p id="modalMessage"></p>
+        <p>Tự động ẩn sau 5s</p>
+    </div>
+</div>
+
 <!-- Labeling -->
-<form action="{{ url_for('views.annotate', index=current_idx) }}" method="post" class="form-container">
+<form action="{{ url_for('views.annotate', index=current_idx) }}" method="post" class="form-container" id="annotationForm">
 
     <!-- Data -->
     <div class="right-container left-content">
@@ -365,9 +410,8 @@
 
 </form>
 
-<br>
 <script>
-    // Function to ensure only one checkbox can be checked
+    // Function to ensure only one checkbox (main label) can be checked
     var checkboxes = document.querySelectorAll('input[type="checkbox"][name="labeling_checkbox"]');
     checkboxes.forEach(function(checkbox) {
         checkbox.addEventListener('change', function() {
@@ -379,6 +423,7 @@
         });
     });
 
+    // Show all samples have not completed
     function toggleInfo(item) {
         // Find the additional information within the item
         var additionalInfo = item.querySelector('.additional-info');
@@ -393,6 +438,69 @@
             arrow.innerHTML = '&#9660;'; // Change arrow to down arrow when collapsed
         }
     }
+
+    // Prevent case no label for each aspect
+    var modal = document.getElementById("customModal");
+    var span = document.getElementsByClassName("close")[0];
+
+    span.onclick = function() {
+        closeModal();
+    }
+
+    document.getElementById("annotationForm").addEventListener("submit", function(event) {
+        var checkboxes = document.querySelectorAll('input[type=checkbox]:checked');
+        var aspectRows = document.querySelectorAll('.aspect-row');
+        var explanationTextarea = document.getElementById("explanation");
+        var isValid = true;
+
+        // Check if at least one checkbox is checked
+        if (checkboxes.length === 0) {
+            showModal("Nhãn chính", " cần được chọn!");
+            event.preventDefault();
+            setTimeout(closeModal, 5000); // Hide modal after 3 seconds
+            return
+        }
+
+        // Check if at least one radio button is checked for each aspect
+        aspectRows.forEach(function(row) {
+            var radioButtons = row.querySelectorAll('input[type=radio]');
+            var radioChecked = Array.prototype.slice.call(radioButtons).some(function(button) {
+                return button.checked;
+            });
+            if (!radioChecked) {
+                isValid = false;
+            }
+        });
+
+        // If not all aspects have been labeled
+        if (!isValid) {
+            showModal("Nhãn khía cạnh", " cần được chọn!");
+            event.preventDefault();
+            setTimeout(closeModal, 5000); // Hide modal after 3 seconds
+            return
+        }
+
+        // If not explanation
+        if (explanationTextarea.value.trim() === "") {
+            showModal("Câu giải thích", " cần được cung cấp!");
+            event.preventDefault();
+            setTimeout(closeModal, 5000); // Hide modal after 3 seconds
+            return
+        }
+    });
+
+    // Function to display the modal with a custom message
+    function showModal(message1, message2) {
+        var formattedMessage = "<strong>" + message1 + "</strong>" + message2
+        document.getElementById("modalMessage").innerHTML = formattedMessage;
+        modal.style.display = "block";
+    }
+    // Function to close the modal
+    function closeModal() {
+        modal.style.display = "none";
+    }
+
+
 </script>
 
 {% endblock %}

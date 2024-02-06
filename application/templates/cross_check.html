@@ -105,6 +105,41 @@
             1px  1px 0 #000; /* Adjust the shadow offsets as needed */
     }
 
+    #customModal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+
+    /* Modal Content/Box */
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto; /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 70%; /* Could be more or less, depending on screen size */
+    }
+
+    /* The Close Button */
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover, .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
 </style>
 
 <!-- Extract cross checking reviews -->
@@ -120,8 +155,17 @@
 
 <hr>
 
+<!-- Custom pop-up modal -->
+<div id="customModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <p id="modalMessage"></p>
+        <p>Tự động ẩn sau 5s</p>
+    </div>
+</div>
+
 <!-- cross-checking -->
-<form action="{{ url_for('views.cross_check', index=current_idx) }}" method="post" class="form-container">
+<form action="{{ url_for('views.cross_check', index=current_idx) }}" method="post" class="form-container" id="annotationForm">
 
     <!-- View Data -->
     <div class="right-container left-content">
@@ -249,5 +293,37 @@
     </div>
 
 </form>
+
+<script>
+        // Prevent case no label for each aspect
+    var modal = document.getElementById("customModal");
+    var span = document.getElementsByClassName("close")[0];
+
+    span.onclick = function() {
+        closeModal();
+    }
+
+    document.getElementById("annotationForm").addEventListener("submit", function(event) {
+        var isAcceptedCheckbox = document.getElementById("is_accepted");
+        var crossCheckReviewTextarea = document.getElementById("cross_check_review");
+
+        if (!isAcceptedCheckbox.checked && crossCheckReviewTextarea.value.trim() === "") {
+            showModal("<strong>TH: NOT OKAY.</strong> Cần cung cấp câu nhận xét.");
+            event.preventDefault();
+            setTimeout(closeModal, 5000); // Hide modal after 3 seconds
+        }
+    });
+
+    // Function to display the modal with a custom message
+    function showModal(message) {
+        document.getElementById("modalMessage").innerHTML = message;
+        modal.style.display = "block";
+    }
+    // Function to close the modal
+    function closeModal() {
+        modal.style.display = "none";
+    }
+
+</script>
 
 {% endblock %}
