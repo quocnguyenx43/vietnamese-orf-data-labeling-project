@@ -258,7 +258,7 @@ def upload_to_drive():
         return "Không có quyền truy cập vào trang quản trị admin.", 403
     
     upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
-    flash('Upload backup database từ GG.Drive thành công!', 'success')
+    flash('Upload backup database lên GG.Drive thành công!', 'success')
     return redirect(url_for('views.admin'))
 
 
@@ -367,7 +367,7 @@ def annotate():
 
         # Backup thành công
         upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
-        flash('Upload backup database từ GG.Drive thành công!', 'success')
+        flash('Upload backup database lên GG.Drive thành công!', 'success')
         return redirect(url_for('views.annotate', index=int(rcmt_idx) + 1))
     
     return render_template(
