@@ -6,7 +6,8 @@ import json
 from werkzeug.security import generate_password_hash
 from .utils import (
     populate_data, convert_to_csv, send_csv_as_download,
-    get_recruitment_data, get_annotation_data, get_cross_check_data, get_form_data, insert_annotation, insert_cross_check_review, get_samples_not_okay,
+    get_recruitment_data, get_annotation_data, get_cross_check_data, get_form_data,
+    insert_annotation, insert_cross_check_review, get_samples_not_okay,
     generate_monitor
 )
 from .backup_to_drive import (
@@ -363,7 +364,6 @@ def annotate():
                 is_done,
                 db
             )
-        flash(f'Lưu mẫu {rcmt_idx} thành công!', category='success')
 
         # Backup thành công
         upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
@@ -438,11 +438,10 @@ def cross_check():
 
         # Insert data thành công
         insert_cross_check_review(rcmt_id, current_user_id, validated_user_id, cross_check_review, is_accepted, False, db)
-        flash(f'Lưu review mẫu số {rcmt_idx} thành công!', category='success')
 
         # Backup thành công
         upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
-        flash('Upload backup database từ GG.Drive thành công!', 'success')
+        flash('Upload backup database lên GG.Drive thành công!', 'success')
         return redirect(url_for('views.cross_check', index=int(rcmt_idx) + 1))
     
     return render_template(

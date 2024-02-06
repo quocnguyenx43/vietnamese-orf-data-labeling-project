@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, Response
 import csv
 import io
+from flask import flash
 
 
 # Create admin account if admin account doesn't exists
@@ -136,7 +137,6 @@ def send_mail(email, username, password):
     server.login(email_sender, email_password)
     server.sendmail(email_sender, email_receiver, em.as_string())
 
-
 # Annotation handle
 def get_recruitment_data(idx, cur_user_id):
     from .models import Recruitment
@@ -200,7 +200,6 @@ def get_form_data(aspects, form):
 
 def insert_annotation(r_id, u_id, aspect_level, label, explanation, db):
     from .models import Annotation
-    from flask import flash
     from datetime import datetime, timedelta
 
     existing_annotation = Annotation.query.filter_by(recruitment_id=r_id, user_id=u_id).first()
@@ -232,8 +231,6 @@ def insert_annotation(r_id, u_id, aspect_level, label, explanation, db):
         db.session.add(new_annotation)
         flash('Annotation added!', category='success')
     db.session.commit()
-
-
 
 def insert_cross_check_review(r_id, a_id, b_id, cross_check_review, is_accepted, is_done, db):
     from .models import CrossCheckReviews
