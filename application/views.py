@@ -241,12 +241,13 @@ def download_db():
 @login_required
 def refresh_from_drive():
     # Check if the user is admin or not
-    if not current_user.is_admin:
-        return "Không có quyền truy cập vào trang quản trị admin.", 403
+    # if not current_user.is_admin:
+    #     return "Không có quyền truy cập vào trang quản trị admin.", 403
     
     download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
     flash('Tải backup database từ GG.Drive thành công!', 'success')
-    return redirect(url_for('views.admin'))
+    # return redirect(url_for('views.admin'))
+    return redirect(request.referrer or '/')
 
 
 # Upload db to Google Drive
