@@ -365,7 +365,7 @@
             <span><strong >Cross-check Review từ User: </strong>{{ validator_name, ck_data.validator_user_id }}</span>
             <ul>
                 <li><span><strong>Is Okay: </strong>{{ ck_data.is_accepted }}</span></li>
-                <li><span><strong>Review: </strong>{% if ck_data.cross_check_review %} <pre style="white-space: pre-wrap; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px;">{{ ck_data.cross_check_review }}</pre> {% else %} <span style="font-style: italic; color: chocolate;">(Rỗng)</span> {% endif %}</span></li>
+                <li><span><strong>Review: </strong>{% if ck_data.cross_check_review %} <pre style="white-space: pre-wrap; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 15px;">{{ ck_data.cross_check_review }}</pre> {% else %} <span style="font-style: italic; color: chocolate;">(Rỗng)</span> {% endif %}</span></li>
             </ul>
             {% else %}
             <i>Chưa có User nào cross-check cho bạn</i>
