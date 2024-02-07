@@ -456,7 +456,10 @@ def cross_check():
         # Backup thành công
         upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
         # flash('Upload backup database lên GG.Drive thành công!', 'success')
-        return redirect(url_for('views.cross_check', index=index+1))
+        if index:
+            return redirect(url_for('views.cross_check', index=index+1))
+        else:
+            return redirect(url_for('views.cross_check'))
     
     return render_template(
         "cross_check.html",
