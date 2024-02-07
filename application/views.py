@@ -91,15 +91,19 @@ def admin():
 
     monitors_results.pop('admin', None)
 
-    # check user session
-    
+    real_admin = False
+    if request.method == 'POST':
+        password_admin = request.form.get('password-admin')
+        if password_admin == '869':
+            real_admin = True
 
     return render_template(
         "admin.html",
         user=current_user,
         users=all_users,
         monitors=monitors_results,
-        files=current_files
+        files=current_files,
+        real_admin=real_admin
     )
 
 # Admin: Add user handle

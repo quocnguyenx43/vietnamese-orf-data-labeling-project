@@ -1,12 +1,6 @@
 {% extends "base.html" %}
 {% block title %}QUẢN TRỊ ADMIN{% endblock %}
 {% block content %}
-<div style="text-align: center;">
-    <h1>QUẢN TRỊ ADMIN</h1>
-    <a href="/view-data" class="view-data" class="btn btn-success">XEM DATA</a>
-</div>
-
-<hr>
 
 <style>
     h1 {
@@ -40,7 +34,24 @@
         text-align: left; /* Align text within the div to the left */
         flex-direction: column; /* Ensures each child is on a new line */
     }
+
 </style>
+
+<div style="text-align: center;">
+    <h1>QUẢN TRỊ ADMIN</h1>
+</div>
+
+<form method="POST" id="password-to-admin">
+    <textarea name="password-admin" id="password-admin" style="width: 10%; height: 30px;"></textarea>
+    <br>
+    <button type="submit" name="action">Nhập</button>
+</form>
+
+<hr>
+
+{% if real_admin %}
+<a href="/view-data" class="view-data" class="btn btn-success">XEM DATA</a>
+{% endif %}
 
 <div class="container">
     <h1>Monitor</h1>
@@ -75,9 +86,11 @@
                 <th>Email</th>
                 <th>Username</th>
                 <th>Is Admin</th>
-                <th>Validated User ID</th>
+                <!-- <th>Validated User ID</th> -->
                 <th></th>
+                {% if real_admin %}
                 <th></th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -87,20 +100,31 @@
                     <td>{{ user.email }}</td>
                     <td>{{ user.username }}</td>
                     <td>{{ "Yes" if user.is_admin else "No" }}</td>
-                    <td>{{ user.validated_user_id }}</td>
+                    <!-- <td>{{ user.validated_user_id }}</td> -->
                     <td>
                         <button class="btn btn-primary btn-sm edit-button" data-id="{{ user.id }}">Edit</button></td>
+                    {% if real_admin %}
                     <td>
                         <form method="post" action="{{ url_for('views.remove_user', user_id=user.id) }}">
                             <input type="hidden" name="_method" value="DELETE">
                             <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                         </form>
                     </td>
+                    {% endif %}
                 </tr>
             {% endfor %}
         </tbody>
     </table>
 
+    <div class="left-content">
+        <h1>Download Database</h1>
+        <p>Bấm nút này để download database về:</p>
+        <a href="{{ url_for('views.download_db') }}" download>
+            <button>Download Database</but>
+        </a>
+    </div>
+
+    {% if real_admin %}
     <div class="left-content">
         <h1>Add User</h1>
         <form method="POST" action="{{ url_for('views.add_user') }}">
@@ -139,20 +163,9 @@
             <button type="submit" class="btn btn-primary">Upload CSV data</button>
         </form>
     </div>
-
+    
     <br>
-
-    <div class="left-content">
-        <h1>Download Database</h1>
-        <p>Bấm nút này để download database về:</p>
-        <a href="{{ url_for('views.download_db') }}" download>
-            <button>Download Database</but>
-        </a>
-    </div>
-
-    <br>
-    <br>
-
+    
     <div class="left-content">
         <h1>Download & Upload Database - Application Database / Google Drive</h1>
         <p>Bấm nút này để download database được backup từ Google Drive về hệ thống:</p>
@@ -164,6 +177,7 @@
             <button>Upload từ hệ thống lên Google Drive</button>
         </a>    
     </div>
+    {% endif %}
 
 </div>
 
