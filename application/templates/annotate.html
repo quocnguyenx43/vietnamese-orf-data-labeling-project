@@ -315,10 +315,15 @@
             </div>
 
             <!-- Item to toggle -->
-            <div class="toggle-item" onclick="toggleInfo(this)" style="background-color: lightpink; border: black; border-radius: 10px;">
-                <strong>Các mẫu chưa gán<span class="arrow">&#9660;</span></strong>
+            <div class="toggle-item" onclick="toggleInfo(this)" style="background-color: {% if indices_incompleted|length >= 1 %}lightpink{% else %}lightgreen{% endif %}; border: black; border-radius: 10px;">
+                <strong>Các mẫu chưa gán ({{ indices_incompleted|length }})<span class="arrow">&#9660;</span></strong>
                 <!-- Additional information hidden by default -->
-                <div class="additional-info">{{ indices_incompleted }} <br> <strong>Số lượng</strong>: {{ indices_incompleted|length }}</div>
+                <div class="additional-info">{{ indices_incompleted }}</div>
+            </div>
+            <div class="toggle-item" onclick="toggleInfo(this)" style="background-color: {% if indices_samples_not_okay|length >= 1 %}lightpink{% else %}lightgreen{% endif %}; border: black; border-radius: 10px; margin-top: 5px;">
+                <strong>Các mẫu not okay ({{ indices_samples_not_okay|length }})<span class="arrow">&#9660;</span></strong>
+                <!-- Additional information hidden by default -->
+                <div class="additional-info">{{ indices_samples_not_okay }}</div>
             </div>
         </div>
 
@@ -326,7 +331,7 @@
 
         <!-- Options left right -->
         <div class="d-flex justify-content-center">
-            <button type="button" class="btn btn-primary mr-3" id="previous" onclick="window.location.href='/annotate/?index={{ rcmt_idx - 1 }}'">
+            <button type="button" class="btn btn-primary mr-3" id="previous" onclick="window.location.href='/annotate/?index={{ current_idx - 1 }}'">
                 <i class="fas fa-arrow-left"></i>
             </button>
             <button type="button" class="btn btn-primary mr-3" id="from-beginning" onclick="window.location.href='/annotate/?index=1'">
@@ -335,7 +340,7 @@
             <button type="button" class="btn btn-primary mr-3" id="from-end" onclick="window.location.href='/annotate/?index={{ last }}'">
                 <i class="fas fa-fast-forward"></i>
             </button>
-            <button type="button" class="btn btn-primary mr-3" id="next" onclick="window.location.href='/annotate/?index={{ rcmt_idx + 1 }}'">
+            <button type="button" class="btn btn-primary mr-3" id="next" onclick="window.location.href='/annotate/?index={{ current_idx + 1 }}'">
                 <i class="fas fa-arrow-right"></i>
             </button>
         </div>

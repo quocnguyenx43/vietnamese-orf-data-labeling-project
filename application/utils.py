@@ -67,13 +67,25 @@ def populate_data(db, df):
         db.session.add(recruitment)
     db.session.commit()
 
+def generate_self_monitor(db, annotator_id):
+    from sqlalchemy import text
 
-def generate_monitor(db):
-    query = f"SELECT * FROM Recruitment"
-    result = db.execute(query)
-    rows = result.fetchall()
-    print(rows)
+    engine = db.engine
+    query1 = text("SELECT COUNT(*) FROM Recruitment AS A, Annotation AS B WHERE A.id == B.recruitment_id AND A.annotator_id = :annotator_id")
+    query2 = text("SELECT COUNT(*) FROM cross_check_reviews AS A WHERE A.validator_user_id = :annotator_id")
     
+    with engine.connect() as connection:
+        
+        result = connection.execute(query1, {"annotator_id": annotator_id})
+        rows = result.fetchall()
+        query1_re = rows[0][0] if rows else 0
+
+        result = connection.execute(query2, {"annotator_id": annotator_id})
+        rows = result.fetchall()
+        query2_re = rows[0][0] if rows else 0
+    
+    return query1_re, query2_re
+
 
 # Convert `db Query` into csv file
 def convert_to_csv(data):
@@ -138,9 +150,13 @@ def send_mail(email, username, password):
     server.sendmail(email_sender, email_receiver, em.as_string())
 
 # Annotation handle
-def get_recruitment_data(idx, cur_user_id):
+def get_recruitment_data(id=None, idx=None, cur_user_id=None):
     from .models import Recruitment
-    recruitment = Recruitment.query.filter_by(annotator_id=cur_user_id, index_for_annotator=idx).first()
+    if id:
+        recruitment = Recruitment.query.filter_by(id=id).first()
+    else:
+        recruitment = Recruitment.query.filter_by(annotator_id=cur_user_id, index_for_annotator=idx).first()
+    index_for_annotator = recruitment.index_for_annotator
     aspects = {
         'title_aspect': ['title', 'job_type'],
         'desc_aspect': ['body', 'education', 'experience', 'benefit', 'certification'],
@@ -155,7 +171,7 @@ def get_recruitment_data(idx, cur_user_id):
         for col in cols:
             data[key][col] = recruitment[col]
 
-    return data
+    return data, index_for_annotator
 
 def get_annotation_data(r_idx, u_id):
     from .models import Annotation
@@ -167,18 +183,14 @@ def get_annotation_data(r_idx, u_id):
 
     return data
 
-def get_cross_check_data(rcmt_id, u_id, is_validator=True):
+def get_cross_check_data(rcmt_id):
     from .models import CrossCheckReviews
-    if is_validator:
-        cross_check_reviews = CrossCheckReviews.query.filter_by(recruitment_id=rcmt_id, validator_user_id=u_id).first()
-    else:
-        cross_check_reviews = CrossCheckReviews.query.filter_by(recruitment_id=rcmt_id, validated_user_id=u_id).first()
-
+    cross_check_reviews = CrossCheckReviews.query.filter_by(recruitment_id=rcmt_id).first()
     return cross_check_reviews
     
 def get_samples_not_okay(u_id):
     from .models import CrossCheckReviews
-    cross_check_reviews = CrossCheckReviews.query.filter_by(validated_user_id=u_id, is_accepted=False).all()
+    cross_check_reviews = CrossCheckReviews.query.filter_by(validated_user_id=u_id, is_accepted=False, is_done=False).all()
     return cross_check_reviews
     
 def get_form_data(aspects, form):

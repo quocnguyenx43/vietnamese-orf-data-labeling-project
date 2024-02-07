@@ -8,7 +8,7 @@ from .utils import (
     populate_data, convert_to_csv, send_csv_as_download,
     get_recruitment_data, get_annotation_data, get_cross_check_data, get_form_data,
     insert_annotation, insert_cross_check_review, get_samples_not_okay,
-    generate_monitor
+    generate_self_monitor
 )
 from .backup_to_drive import (
     authenticate, get_file_id_by_name, upload_file, download_file
@@ -35,7 +35,14 @@ index_to_name = {
 @views.route('/')
 @views.route('/home/')
 def home():
-    return render_template("home.html", user=current_user)
+    completed_ann, completed_ck = generate_self_monitor(db, current_user.id)
+    incompleted_ann, incompleted_ck = 500 - completed_ann, 500 - completed_ck
+    return render_template(
+        "home.html",
+        user=current_user,
+        incompleted_ann=incompleted_ann,
+        incompleted_ck=incompleted_ck
+    )
 
 # Home handle
 @views.route('/')
@@ -271,13 +278,14 @@ def annotate():
     rcmt_idx = request.args.get('index')
     current_user_id = current_user.id
 
-    # Count n completed and n incompleted
-    count = Recruitment.query.filter_by(annotator_id=current_user_id).count()
-    n_completed = db.session.query(func.count()).select_from(Recruitment).join(
-        Annotation, Annotation.recruitment_id == Recruitment.id
-    ).filter(
-        Annotation.user_id == current_user_id
-    ).scalar()
+    # count = Recruitment.query.filter_by(annotator_id=current_user_id).count()
+    count = 500
+    completed_sample = db.session.query(Recruitment.index_for_annotator).join(
+        Annotation, Recruitment.id == Annotation.recruitment_id
+    ).filter(Recruitment.annotator_id == current_user_id)
+
+    # N samples completed
+    n_completed = completed_sample.count()
 
     if rcmt_idx is None:
         return redirect(url_for('views.annotate', index=n_completed + 1))
@@ -291,37 +299,28 @@ def annotate():
             flash(f'Index lớn hơn phạm vi. Index yêu cầu: {rcmt_idx}, tối đa: {count}. Redirect về index cuối cùng!', category='error')
             return redirect(url_for('views.annotate', index=count))
     except ValueError:
-        flash(f'Index không hợp lệ! Index phải là số. Index yêu cầu: {rcmt_idx}. Redirect về index 1!', category='error')
-        return redirect(url_for('views.annotate', index=1))
+        flash(f'Index không hợp lệ! Index phải là số. Index yêu cầu: {rcmt_idx}. Redirect về index {n_completed + 1}!', category='error')
+        return redirect(url_for('views.annotate', index=n_completed + 1))
     
-    
+    # N incompleted indices
+    completed_indices = [i[0] for i in completed_sample.all()]
+    incompleted_indices = sorted(list(set(range(1, 501)) - set(completed_indices)))
+
     # Handle GET (to show recruitment data)
-    recruitment_data = get_recruitment_data(rcmt_idx, current_user_id)
+    recruitment_data, _ = get_recruitment_data(id=None, idx=rcmt_idx, cur_user_id=current_user_id)
     rcmt_id = recruitment_data['other_aspect']['id']
     annotation_data = get_annotation_data(rcmt_id, current_user_id)
-    cross_check_data = get_cross_check_data(rcmt_id, current_user_id, is_validator=False)
+    cross_check_data = get_cross_check_data(rcmt_id)
 
-    if cross_check_data:
-        validator_user_id = cross_check_data.validator_user_id
-        validated_user_id = cross_check_data.validated_user_id
-        cross_check_review = cross_check_data.cross_check_review
-        is_accepted = cross_check_data.is_accepted
-
-    indices_completed = db.session.query(Recruitment.index_for_annotator).join(
-        Annotation, Annotation.recruitment_id == Recruitment.id
-    ).filter(
-        Annotation.user_id == current_user_id
-    ).all()
-    indices_completed = [item for sublist in indices_completed for item in sublist]
-    indices_incompleted = list(set(range(1, 501)) - set(indices_completed))
-
-    samples_not_okay = [review.recruitment_id for review in get_samples_not_okay(current_user_id)]
+    # N not-okay indices
+    samples_not_okay = get_samples_not_okay(current_user_id)
+    samples_not_okay = [review.recruitment_id for review in samples_not_okay]
     filtered_recruitments = Recruitment.query.filter(Recruitment.id.in_(samples_not_okay)).all()
     indices_samples_not_okay = [rcmt.index_for_annotator for rcmt in filtered_recruitments]
     indices_samples_not_okay = sorted(indices_samples_not_okay)
 
     try:
-        i = indices_samples_not_okay.index(rcmt_idx)        
+        i = indices_samples_not_okay.index(rcmt_idx)
         left = 0 if i == 0 else i - 1
         right = len(indices_samples_not_okay) - 1 if i == len(indices_samples_not_okay) - 1 else i + 1
     except ValueError:
@@ -353,15 +352,15 @@ def annotate():
         # Download backup
         download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
 
-        # # Insert data thành công
-        insert_annotation(rcmt_id, current_user.id, aspect_level, label[0], explanation, db)
-        if cross_check_data:
+        # Insert data thành công
+        insert_annotation(rcmt_id, current_user_id, aspect_level, label[0], explanation, db)
+        if cross_check_data and cross_check_data.is_done != is_done:
             insert_cross_check_review(
                 rcmt_id,
-                validator_user_id,
-                validated_user_id,
-                cross_check_review,
-                is_accepted,
+                cross_check_data.validator_user_id,
+                current_user_id,
+                cross_check_data.cross_check_review,
+                cross_check_data.is_accepted,
                 is_done,
                 db
             )
@@ -374,16 +373,21 @@ def annotate():
     return render_template(
         "annotate.html",
         current_idx=rcmt_idx,
-        user=current_user,
-        rcmt_idx=rcmt_idx,
         last=count,
         n_completed=n_completed,
+        indices_incompleted=incompleted_indices,
+
+        user=current_user,
+
+        validator_name=index_to_name[cross_check_data.validator_user_id] if cross_check_data is not None else None,
+
+        indices_samples_not_okay=indices_samples_not_okay,
+        left=left,
+        right=right,
+        
         rcmt_data=recruitment_data,
         ann_data=annotation_data,
         ck_data=cross_check_data,
-        validator_name=index_to_name[cross_check_data.validator_user_id] if cross_check_data is not None else None,
-        indices_samples_not_okay=indices_samples_not_okay,left=left,right=right,
-        indices_incompleted=sorted(indices_incompleted),
     )
 
 # Annotate handle
@@ -391,40 +395,49 @@ def annotate():
 @login_required
 def cross_check():
     # Handle args
-    rcmt_idx = request.args.get('index')
+    index = request.args.get('index')
     current_user_id = current_user.id
-    validated_user_id = current_user.validated_user_id
-    validatede_name = index_to_name[validated_user_id]
-
-    # Count n completed and n incompleted
-    count = Recruitment.query.filter_by(annotator_id=validated_user_id).count()
-    n_completed = db.session.query(func.count()).select_from(Recruitment).join(
-        CrossCheckReviews, CrossCheckReviews.recruitment_id == Recruitment.id
-    ).filter(
-        CrossCheckReviews.validator_user_id == current_user_id
-    ).scalar()
-
-    if rcmt_idx is None:
-        return redirect(url_for('views.cross_check', index=n_completed + 1))
-
-    try:
-        rcmt_idx = int(rcmt_idx)
-        if rcmt_idx < 1:
-            flash(f'Index phải lớn hơn hoặc bằng 1 . Index yêu cầu: {rcmt_idx}. Redirect về index 1!', category='error')
-            return redirect(url_for('views.cross_check', index=1))
-        elif rcmt_idx > count:
-            flash(f'Index lớn hơn phạm vi. Index yêu cầu: {rcmt_idx}, tối đa: {count}. Redirect về index cuối cùng!', category='error')
-            return redirect(url_for('views.cross_check', index=count))
-    except ValueError:
-        flash(f'Index không hợp lệ! Index phải là số. Index yêu cầu: {rcmt_idx}. Redirect về index 1!', category='error')
-        return redirect(url_for('views.cross_check', index=1))
-
-    # Handle GET (to show recruitment data)
-    recruitment_data = get_recruitment_data(rcmt_idx, validated_user_id)
-    rcmt_id = recruitment_data['other_aspect']['id']
-    annotation_data = get_annotation_data(rcmt_id, validated_user_id)
-    cross_check_data = get_cross_check_data(rcmt_id, current_user_id)
     
+    # Number completed
+    user_cks = CrossCheckReviews.query.filter_by(validator_user_id=current_user_id)
+    n_completed = user_cks.count()
+
+    #### Handle GET (modifying)
+    if index:
+        try:
+            index = int(index)
+            if index < 1:
+                flash(f'Index phải lớn hơn hoặc bằng 1 . Index yêu cầu: {index}. Redirect về index 1!', category='error')
+                return redirect(url_for('views.cross_check', index=1))
+            elif index > n_completed:
+                flash(f'Index lớn hơn phạm vi. Index yêu cầu: {index}, tối đa: {n_completed}. Redirect về index cuối cùng!', category='error')
+                return redirect(url_for('views.cross_check', index=n_completed))
+        except ValueError:
+            flash(f'Index không hợp lệ! Index phải là số. Index yêu cầu: {index}. Redirect về index 1!', category='error')
+            return redirect(url_for('views.cross_check', index=1))
+        cross_check_data = user_cks.all()[index - 1]
+        rcmt_id = cross_check_data.recruitment_id
+        user_id = cross_check_data.validated_user_id
+        recruitment_data, index_for_annotator = get_recruitment_data(id=rcmt_id)
+        annotation_data = get_annotation_data(rcmt_id, cross_check_data.validated_user_id)
+    #### Handle GET (adding new)
+    else:
+        # All rcmt id
+        rcmt_ids = db.session.query(Recruitment.id).all()
+        rcmt_ids = [item for sublist in rcmt_ids for item in sublist]
+        # Random from annotation completed but not cross check completed
+        sample = db.session.query(Annotation.recruitment_id, Annotation.user_id).outerjoin(
+            CrossCheckReviews, Annotation.recruitment_id == CrossCheckReviews.recruitment_id
+        ).filter(CrossCheckReviews.recruitment_id == None).filter(Annotation.user_id != current_user_id).all()
+        import random
+        random_ann = random.choice(sample)
+        rcmt_id = random_ann[0]
+        user_id = random_ann[1]
+        # Get data
+        recruitment_data, index_for_annotator = get_recruitment_data(id=rcmt_id)
+        annotation_data = get_annotation_data(rcmt_id, user_id)
+        cross_check_data = get_cross_check_data(rcmt_id)
+
     # Handle POST (to label recruitment sample)
     if request.method == 'POST':
         is_accepted = bool(request.form.get('is_accepted'))
@@ -432,28 +445,29 @@ def cross_check():
 
         if not cross_check_review.strip() and is_accepted == False:
             flash(f'Cần thêm review (Trường hợp NOT OKAY)!', category='error')
-            return redirect(url_for('views.cross_check', index=rcmt_idx))
+            return redirect(url_for('views.cross_check', index=index))
 
         # Download backup
         download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
 
         # Insert data thành công
-        insert_cross_check_review(rcmt_id, current_user_id, validated_user_id, cross_check_review, is_accepted, False, db)
+        insert_cross_check_review(rcmt_id, current_user_id, user_id, cross_check_review, is_accepted, False, db)
 
         # Backup thành công
         upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
-        flash('Upload backup database lên GG.Drive thành công!', 'success')
-        return redirect(url_for('views.cross_check', index=int(rcmt_idx) + 1))
+        # flash('Upload backup database lên GG.Drive thành công!', 'success')
+        return redirect(url_for('views.cross_check', index=index+1))
     
     return render_template(
         "cross_check.html",
-        current_idx=rcmt_idx,
         user=current_user,
-        validated_user_id=validated_user_id,
-        validatede_name=validatede_name,
-        rcmt_idx=rcmt_idx,
-        last=count,
+
+        current_idx=index,
         n_completed=n_completed,
+
+        annotator_name=index_to_name[user_id],
+        index_for_annotator=index_for_annotator,
+
         rcmt_data=recruitment_data,
         ann_data=annotation_data,
         ck_data=cross_check_data
