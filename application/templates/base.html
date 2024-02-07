@@ -165,39 +165,40 @@
             </div>
         </div>
         {% if user.is_authenticated %}
-        <a class="nav-item nav-link" id="logout" href="/logout">ĐĂNG XUẤT</a>
-        <p id="greeting" class="text-white"><img style="width: 20px;" src="https://cdn-icons-png.flaticon.com/512/13153/13153684.png" alt="2024 IMG"> Hi <strong>{{ user.username }}  </strong><i class="fas fa-chevron-down" id="arrow-down"></i></p>
-        <script>
-            // Get the elements
-            const greetingElement = document.getElementById("greeting");
-            const logoutButton = document.getElementById("logout");
-            let timeoutId;
+            <a class="nav-item nav-link" id="logout" href="/logout">ĐĂNG XUẤT</a>
+            <p style="margin-right: 10px;" class="text-white">{{ monitor }}</p>
+            <p id="greeting" class="text-white"><img style="width: 20px;" src="https://cdn-icons-png.flaticon.com/512/13153/13153684.png" alt="2024 IMG"> Hi <strong>{{ user.username }}  </strong><i class="fas fa-chevron-down" id="arrow-down"></i></p>
+            <script>
+                // Get the elements
+                const greetingElement = document.getElementById("greeting");
+                const logoutButton = document.getElementById("logout");
+                let timeoutId;
 
-            // Show the logout button on mouseover
-            greetingElement.addEventListener("mouseover", () => {
-                clearTimeout(timeoutId);
-                logoutButton.style.display = "block";
-            });
+                // Show the logout button on mouseover
+                greetingElement.addEventListener("mouseover", () => {
+                    clearTimeout(timeoutId);
+                    logoutButton.style.display = "block";
+                });
 
-            // Hide the logout button on mouseout with a slight delay
-            greetingElement.addEventListener("mouseout", () => {
-                timeoutId = setTimeout(() => {
-                    logoutButton.style.display = "none";
-                }, 300); // Adjust the delay (in milliseconds) as needed
-            });
+                // Hide the logout button on mouseout with a slight delay
+                greetingElement.addEventListener("mouseout", () => {
+                    timeoutId = setTimeout(() => {
+                        logoutButton.style.display = "none";
+                    }, 300); // Adjust the delay (in milliseconds) as needed
+                });
 
-            // Keep the logout button visible when moving the mouse over it
-            logoutButton.addEventListener("mouseover", () => {
-                clearTimeout(timeoutId);
-            });
+                // Keep the logout button visible when moving the mouse over it
+                logoutButton.addEventListener("mouseover", () => {
+                    clearTimeout(timeoutId);
+                });
 
-            // Hide the logout button when the mouse moves out of it
-            logoutButton.addEventListener("mouseout", () => {
-                timeoutId = setTimeout(() => {
-                    logoutButton.style.display = "none";
-                }, 300); // Adjust the delay (in milliseconds) as needed
-            });
-        </script>
+                // Hide the logout button when the mouse moves out of it
+                logoutButton.addEventListener("mouseout", () => {
+                    timeoutId = setTimeout(() => {
+                        logoutButton.style.display = "none";
+                    }, 300); // Adjust the delay (in milliseconds) as needed
+                });
+            </script>
         {% endif %}
     </nav>
 

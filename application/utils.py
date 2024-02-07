@@ -86,6 +86,30 @@ def generate_self_monitor(db, annotator_id):
     
     return query1_re, query2_re
 
+def generate_cross_checking_monitor(db):
+    from sqlalchemy import text
+
+    engine = db.engine
+    query1 = text("SELECT COUNT(*) FROM recruitment")
+    query2 = text("SELECT COUNT(*) FROM annotation")
+    query3 = text("SELECT COUNT(*) FROM cross_check_reviews")
+    
+    with engine.connect() as connection:
+        
+        result = connection.execute(query1)
+        rows = result.fetchall()
+        query1_re = rows[0][0] if rows else 0
+
+        result = connection.execute(query2)
+        rows = result.fetchall()
+        query2_re = rows[0][0] if rows else 0
+
+        result = connection.execute(query3)
+        rows = result.fetchall()
+        query3_re = rows[0][0] if rows else 0
+    
+    return query3_re, query2_re, query1_re
+
 
 # Convert `db Query` into csv file
 def convert_to_csv(data):

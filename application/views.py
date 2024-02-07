@@ -8,7 +8,7 @@ from .utils import (
     populate_data, convert_to_csv, send_csv_as_download,
     get_recruitment_data, get_annotation_data, get_cross_check_data, get_form_data,
     insert_annotation, insert_cross_check_review, get_samples_not_okay,
-    generate_self_monitor
+    generate_self_monitor, generate_cross_checking_monitor
 )
 from .backup_to_drive import (
     authenticate, get_file_id_by_name, upload_file, download_file
@@ -484,5 +484,7 @@ def cross_check():
 
         rcmt_data=recruitment_data,
         ann_data=annotation_data,
-        ck_data=cross_check_data
+        ck_data=cross_check_data,
+
+        monitor=generate_cross_checking_monitor(db),
     )
