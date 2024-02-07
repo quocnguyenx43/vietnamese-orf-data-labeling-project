@@ -275,6 +275,11 @@ def upload_to_drive():
 @views.route('/annotate/', methods=['GET', 'POST'])
 @login_required
 def annotate():
+    
+    # Check if the user is admin or not
+    if current_user.is_admin:
+        return "Admin không dùng để annotate.", 403
+    
     # Handle args
     rcmt_idx = request.args.get('index')
     current_user_id = current_user.id
@@ -395,6 +400,11 @@ def annotate():
 @views.route('/cross_check/', methods=['GET', 'POST'])
 @login_required
 def cross_check():
+    
+    # Check if the user is admin or not
+    if current_user.is_admin:
+        return "Admin không dùng để cross check.", 403
+    
     # Handle args
     index = request.args.get('index')
     current_user_id = current_user.id
