@@ -70,7 +70,7 @@ def sign_up():
         else:
             # If everything is okay, send mail to admin
             send_mail(email=email, username=username, password=password1)
-            flash('Thông tin tài khoản đã được gửi đến admin, hãy chờ phản hồi!', category='success')
+            flash('Thông tin tài khoản đã được gửi đến admin, hãy chờ phản hồi!', category='info')
             return redirect(url_for('views.home'))
 
     return render_template("sign_up.html", user=current_user)

@@ -38,6 +38,11 @@ def home():
     # completed_ann, completed_ck = generate_self_monitor(db, current_user.id)
     # print(current_user.id)
     # incompleted_ann, incompleted_ck = 500 - completed_ann, 500 - completed_ck
+    
+    if current_user.is_admin:
+        flash('Redirect to admin site!', 'info')
+        return redirect(url_for('views.admin'))
+
     return render_template(
         "home.html",
         user=current_user
@@ -180,7 +185,7 @@ def upload_csv():
             flash('Populate data thành công!', 'success')
             
         else:
-            flash('File không hợp lệ!', 'danger')
+            flash('File không hợp lệ!', 'error')
 
     return redirect(url_for('views.admin'))
 
@@ -466,7 +471,7 @@ def cross_check():
 
         # Backup thành công
         upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
-        # flash('Upload backup database lên GG.Drive thành công!', 'success')
+        flash('Upload backup database lên GG.Drive thành công!', 'success')
         if index:
             return redirect(url_for('views.cross_check', index=index+1))
         else:
