@@ -181,6 +181,7 @@ def get_recruitment_data(id=None, idx=None, cur_user_id=None):
     else:
         recruitment = Recruitment.query.filter_by(annotator_id=cur_user_id, index_for_annotator=idx).first()
     index_for_annotator = recruitment.index_for_annotator
+    annotator_id = recruitment.annotator_id
     aspects = {
         'title_aspect': ['title', 'job_type'],
         'desc_aspect': ['body', 'education', 'experience', 'benefit', 'certification'],
@@ -195,7 +196,7 @@ def get_recruitment_data(id=None, idx=None, cur_user_id=None):
         for col in cols:
             data[key][col] = recruitment[col]
 
-    return data, index_for_annotator
+    return data, annotator_id, index_for_annotator
 
 def get_annotation_data(r_idx, u_id):
     from .models import Annotation

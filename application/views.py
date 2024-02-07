@@ -318,7 +318,7 @@ def annotate():
     incompleted_indices = sorted(list(set(range(1, 501)) - set(completed_indices)))
 
     # Handle GET (to show recruitment data)
-    recruitment_data, _ = get_recruitment_data(id=None, idx=rcmt_idx, cur_user_id=current_user_id)
+    recruitment_data, _, _ = get_recruitment_data(id=None, idx=rcmt_idx, cur_user_id=current_user_id)
     rcmt_id = recruitment_data['other_aspect']['id']
     annotation_data = get_annotation_data(rcmt_id, current_user_id)
     cross_check_data = get_cross_check_data(rcmt_id)
@@ -405,7 +405,6 @@ def annotate():
 @views.route('/cross_check/', methods=['GET', 'POST'])
 @login_required
 def cross_check():
-    
     # Check if the user is admin or not
     if current_user.is_admin:
         return "Admin không dùng để cross check.", 403
@@ -431,10 +430,11 @@ def cross_check():
         except ValueError:
             flash(f'Index không hợp lệ! Index phải là số. Index yêu cầu: {index}. Redirect về index 1!', category='error')
             return redirect(url_for('views.cross_check', index=1))
+        
         cross_check_data = user_cks.all()[index - 1]
         rcmt_id = cross_check_data.recruitment_id
         user_id = cross_check_data.validated_user_id
-        recruitment_data, index_for_annotator = get_recruitment_data(id=rcmt_id)
+        recruitment_data, annotator_id, index_for_annotator = get_recruitment_data(id=rcmt_id)
         annotation_data = get_annotation_data(rcmt_id, cross_check_data.validated_user_id)
     #### Handle GET (adding new)
     else:
@@ -446,11 +446,12 @@ def cross_check():
             CrossCheckReviews, Annotation.recruitment_id == CrossCheckReviews.recruitment_id
         ).filter(CrossCheckReviews.recruitment_id == None).filter(Annotation.user_id != current_user_id).all()
         import random
+        random.seed(100)
         random_ann = random.choice(sample)
         rcmt_id = random_ann[0]
         user_id = random_ann[1]
         # Get data
-        recruitment_data, index_for_annotator = get_recruitment_data(id=rcmt_id)
+        recruitment_data, annotator_id, index_for_annotator = get_recruitment_data(id=rcmt_id)
         annotation_data = get_annotation_data(rcmt_id, user_id)
         cross_check_data = get_cross_check_data(rcmt_id)
 
@@ -462,12 +463,15 @@ def cross_check():
         if not cross_check_review.strip() and is_accepted == False:
             flash(f'Cần thêm review (Trường hợp NOT OKAY)!', category='error')
             return redirect(url_for('views.cross_check', index=index))
+        
+        temp = '\n\n[Gán mẫu ' + index_to_name[annotator_id] + ', ' + str(index_for_annotator) + ', ' + recruitment_data['title_aspect']['title'] + ']'
+        print(recruitment_data, cross_check_review, temp)
 
         # Download backup
         download_file(drive_file_name="backup_database.db", local_dest_path='./instance/database.db')
 
         # Insert data thành công
-        insert_cross_check_review(rcmt_id, current_user_id, user_id, cross_check_review, is_accepted, False, db)
+        insert_cross_check_review(rcmt_id, current_user_id, user_id, cross_check_review + temp, is_accepted, False, db)
 
         # Backup thành công
         upload_file(local_file_path="./instance/database.db", dest_file_name='backup_database.db')
