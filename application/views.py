@@ -38,10 +38,6 @@ def home():
     # completed_ann, completed_ck = generate_self_monitor(db, current_user.id)
     # print(current_user.id)
     # incompleted_ann, incompleted_ck = 500 - completed_ann, 500 - completed_ck
-    
-    if current_user.is_admin:
-        flash('Redirect to admin site!', 'info')
-        return redirect(url_for('views.admin'))
 
     return render_template(
         "home.html",
