@@ -35,13 +35,14 @@ index_to_name = {
 @views.route('/')
 @views.route('/home/')
 def home():
-    completed_ann, completed_ck = generate_self_monitor(db, current_user.id)
-    incompleted_ann, incompleted_ck = 500 - completed_ann, 500 - completed_ck
+    # completed_ann, completed_ck = generate_self_monitor(db, current_user.id)
+    # print(current_user.id)
+    # incompleted_ann, incompleted_ck = 500 - completed_ann, 500 - completed_ck
     return render_template(
         "home.html",
-        user=current_user,
-        incompleted_ann=incompleted_ann,
-        incompleted_ck=incompleted_ck
+        user=current_user
+        # incompleted_ann=incompleted_ann,
+        # incompleted_ck=incompleted_ck
     )
 
 # Home handle
