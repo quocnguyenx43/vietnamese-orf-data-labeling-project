@@ -416,6 +416,7 @@ def cross_check():
     # Number completed
     user_cks = CrossCheckReviews.query.filter_by(validator_user_id=current_user_id)
     n_completed = user_cks.count()
+    print(n_completed)
 
     #### Handle GET (modifying)
     if index:
@@ -430,8 +431,11 @@ def cross_check():
         except ValueError:
             flash(f'Index không hợp lệ! Index phải là số. Index yêu cầu: {index}. Redirect về index 1!', category='error')
             return redirect(url_for('views.cross_check', index=1))
-        
-        cross_check_data = user_cks.all()[index - 1]
+
+        try:
+            cross_check_data = user_cks.all()[index - 1]
+        except:
+            cross_check_data = user_cks.all()[500]
         rcmt_id = cross_check_data.recruitment_id
         user_id = cross_check_data.validated_user_id
         recruitment_data, annotator_id, index_for_annotator = get_recruitment_data(id=rcmt_id)

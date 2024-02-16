@@ -70,21 +70,32 @@
 
     .form-container {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         justify-content: space-between;
         align-items: flex-start;
         flex-wrap: wrap;
     }
 
+    .flex-container {
+        display: flex;
+        flex-direction: row;
+    }
+
     .right-container {
-        width: 75%;
+        flex: 75;
         padding-right: 10px;
     }
 
     .left-container {
-        width: 25%;
+        flex: 25;
         padding-left: 10px;
     }
+
+    .sticky-element {
+        position: sticky;
+        top: 20px; /* Stick div2 to the top of the .left container */
+    }
+
 
     .left-content {
         display: flex;
@@ -155,139 +166,147 @@
 <!-- cross-checking -->
 <form action="{{ url_for('views.cross_check', index=current_idx) }}" method="post" class="form-container" id="annotationForm">
 
-    <!-- View Data -->
-    <div class="right-container left-content">
-        <table>
-            {% for aspect, attributes in rcmt_data.items() %}
-                <!-- Each aspect -->
-                {% set filtered_values = [] %}
-                {% for item in attributes.values() %}
-                    {% if item is not none %}
-                        {% set _ = filtered_values.append(item) %}
-                    {% endif %}
-                {% endfor %}
-                {% set count = filtered_values | length  + 1 %}
+    <div class="flex-container">
 
-                <tr class="aspect-row">
-                    <th colspan="2" style="width: 85%;">{{ aspect }}</th>
-                    <td rowspan="{{ count }}" style="text-align: center;">
-                        {% if ann_data is not none %}
-                            {% if ann_data[aspect] == 'positive' %}
-                                {% set a = 'POSITIVE' %}
-                                {% set color = 'greenyellow' %}
-                            {% elif ann_data[aspect] == 'negative' %}
-                                {% set a = 'NEGATIVE' %}
-                                {% set color = 'red' %}
-                            {% elif ann_data[aspect] == 'NEU' %}
-                                {% set a = 'NEUTRAL' %}
-                                {% set color = 'gray' %}
-                            {% else %}
-                                {% set a = 'NOT_MENTIONED' %}
-                                {% set color = 'black' %}
+        <!-- View Data -->
+        <div class="right-container left-content">
+            <table>
+                {% for aspect, attributes in rcmt_data.items() %}
+                    <!-- Each aspect -->
+                    {% set filtered_values = [] %}
+                    {% for item in attributes.values() %}
+                        {% if item is not none %}
+                            {% set _ = filtered_values.append(item) %}
+                        {% endif %}
+                    {% endfor %}
+                    {% set count = filtered_values | length  + 1 %}
+
+                    <tr class="aspect-row">
+                        <th colspan="2" style="width: 85%;">{{ aspect }}</th>
+                        <td rowspan="{{ count }}" style="text-align: center;">
+                            {% if ann_data is not none %}
+                                {% if ann_data[aspect] == 'positive' %}
+                                    {% set a = 'POSITIVE' %}
+                                    {% set color = 'greenyellow' %}
+                                {% elif ann_data[aspect] == 'negative' %}
+                                    {% set a = 'NEGATIVE' %}
+                                    {% set color = 'red' %}
+                                {% elif ann_data[aspect] == 'NEU' %}
+                                    {% set a = 'NEUTRAL' %}
+                                    {% set color = 'gray' %}
+                                {% else %}
+                                    {% set a = 'NOT_MENTIONED' %}
+                                    {% set color = 'black' %}
+                                {% endif %}
                             {% endif %}
-                        {% endif %}
-                        <strong class="stroke-text" style="color: {{ color }};">{{ a }}</strong>
-                    </td>
-                </tr>
-                {% for attribute, value in attributes.items() %}
-                    {% if value is not none %}
-                    <tr>
-                        <td>{{ attribute }}</td>
-                        {% if attribute == 'body' %}
-                            <td>{{ value|safe }}</td>
-                        {% else %}
-                            <td>{{ value }}</td>
-                        {% endif %}
+                            <strong class="stroke-text" style="color: {{ color }};">{{ a }}</strong>
+                        </td>
                     </tr>
-                    {% endif %}
+                    {% for attribute, value in attributes.items() %}
+                        {% if value is not none %}
+                        <tr>
+                            <td>{{ attribute }}</td>
+                            {% if attribute == 'body' %}
+                                <td>{{ value|safe }}</td>
+                            {% else %}
+                                <td>{{ value }}</td>
+                            {% endif %}
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
                 {% endfor %}
-            {% endfor %}
-        </table>
-    </div>
+            </table>
+        </div>
 
-    <!-- Cross-checking Input -->
-    <div class="left-container">
+        <!-- Cross-checking Input -->
+        <div class="left-container">
 
-        <div>
-            <!-- Extract cross checking reviews -->
+            <div>
+                <!-- Extract cross checking reviews -->
+                {% if current_idx %}
+                    <h2 class="text-success text-center">Mẫu {{ current_idx }}. Đang cập nhật!</h2>
+                    <h2 class="text-success text-center">Từ <strong>{{ index_for_annotator, annotator_name }}</strong>.</h2>
+                {% else %}
+                    <h2 class="text-danger text-center">Gán lần đầu!</h2>
+                    <h2 class="text-danger text-center">Từ <strong>{{ index_for_annotator, annotator_name }}</strong>.</h2>
+                {% endif %}
+
+                <div class="progress-bar">
+                    <!-- Calculate the percentage of completed tasks -->
+                    {% set percentage_completed = (n_completed / 500) * 100 %}
+                    <!-- Render the completed bar -->
+                    <div class="completed-bar" style="width: {{ percentage_completed }}%"></div>
+                    <!-- Render the incomplete bar -->
+                    <div class="incomplete-bar" style="width: {{ 100 - percentage_completed }}%"></div>
+                    <!-- Display the progress text -->
+                    <div class="text-success"><strong>{{ n_completed }} / {{ 500 }} samples</strong>
+                </div>
+            </div>
+            </div>
+
+            <hr>
+
+            <!-- Options -->
             {% if current_idx %}
-                <h2 class="text-success text-center">Mẫu {{ current_idx }}. Đang cập nhật!</h2>
-                <h2 class="text-success text-center">Từ <strong>{{ index_for_annotator, annotator_name }}</strong>.</h2>
+                <div class="d-flex justify-content-center">
+                    <button type="button" class="btn btn-primary mr-3" id="previous" onclick="window.location.href='/cross_check/?index={{ current_idx - 1 }}'">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <button type="button" class="btn btn-primary mr-3" id="from-beginning" onclick="window.location.href='/cross_check/?index=1'">
+                        <i class="fas fa-fast-backward"></i>
+                    </button>
+                    <button type="button" class="btn btn-primary mr-3" id="from-end" onclick="window.location.href='/cross_check/?index={{ n_completed }}'">
+                        <i class="fas fa-fast-forward"></i>
+                    </button>
+                    <button type="button" class="btn btn-primary mr-3" id="next" onclick="window.location.href='/cross_check/?index={{ current_idx + 1 }}'">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <br>
+                    <button type="button" class="btn btn-primary mr-3" id="new-sample" onclick="window.location.href='/cross_check/'">Gán mẫu mới
+                </div>
             {% else %}
-                <h2 class="text-danger text-center">Gán lần đầu!</h2>
-                <h2 class="text-danger text-center">Từ <strong>{{ index_for_annotator, annotator_name }}</strong>.</h2>
+                <div class="d-flex justify-content-center">
+                    <button type="button" class="btn btn-primary mr-3" id="previous-annotation" onclick="window.location.href='/cross_check/?index={{ n_completed }}'">&#9664; Xem lại các mẫu đã gán
+                </div>
             {% endif %}
 
-            <div class="progress-bar">
-                <!-- Calculate the percentage of completed tasks -->
-                {% set percentage_completed = (n_completed / 500) * 100 %}
-                <!-- Render the completed bar -->
-                <div class="completed-bar" style="width: {{ percentage_completed }}%"></div>
-                <!-- Render the incomplete bar -->
-                <div class="incomplete-bar" style="width: {{ 100 - percentage_completed }}%"></div>
-                <!-- Display the progress text -->
-                <div class="text-success"><strong>{{ n_completed }} / {{ 500 }} samples</strong>
-            </div>
-        </div>
-        </div>
+            <hr>
 
-        <hr>
+            <div class="sticky-element">
 
-        <!-- Options -->
-        {% if current_idx %}
-            <div class="d-flex justify-content-center">
-                <button type="button" class="btn btn-primary mr-3" id="previous" onclick="window.location.href='/cross_check/?index={{ current_idx - 1 }}'">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <button type="button" class="btn btn-primary mr-3" id="from-beginning" onclick="window.location.href='/cross_check/?index=1'">
-                    <i class="fas fa-fast-backward"></i>
-                </button>
-                <button type="button" class="btn btn-primary mr-3" id="from-end" onclick="window.location.href='/cross_check/?index={{ n_completed }}'">
-                    <i class="fas fa-fast-forward"></i>
-                </button>
-                <button type="button" class="btn btn-primary mr-3" id="next" onclick="window.location.href='/cross_check/?index={{ current_idx + 1 }}'">
-                    <i class="fas fa-arrow-right"></i>
-                </button>
-                <br>
-                <button type="button" class="btn btn-primary mr-3" id="new-sample" onclick="window.location.href='/cross_check/'">Gán mẫu mới
-            </div>
-        {% else %}
-            <div class="d-flex justify-content-center">
-                <button type="button" class="btn btn-primary mr-3" id="previous-annotation" onclick="window.location.href='/cross_check/?index={{ n_completed }}'">&#9664; Xem lại các mẫu đã gán
-            </div>
-        {% endif %}
+                <div class="left-content">
+                    <span><strong>Nhãn: </strong>{{ ann_data['label'] }}</span>
+                    <span><strong>Câu giải thích: </strong>{{ ann_data['explanation'] }}</span>
+                </div>
 
-        <hr>
+                <hr>
 
-        <div class="left-content">
-            <span><strong>Nhãn: </strong>{{ ann_data['label'] }}</span>
-            <span><strong>Câu giải thích: </strong>{{ ann_data['explanation'] }}</span>
-        </div>
+                <div class="left-content">
+                    <span><strong>User đã đọc nhận xét từ bạn: </strong>{% if ck_data.is_done %}Đã xem{% else %}Chưa{% endif %}</span>
+                </div>
 
-        <hr>
+                <hr>
 
-        <div class="left-content">
-            <span><strong>User đã đọc nhận xét từ bạn: </strong>{% if ck_data.is_done %}Đã xem{% else %}Chưa{% endif %}</span>
-        </div>
+                <div style="text-align: left;">
+                    <div>
+                        <label for="is_accepted" class="checkbox-label"><strong>Okay or not?</strong></label>
+                        <input type="checkbox" id="is_accepted" name="is_accepted" {% if ck_data.is_accepted %}checked{% endif %}>
+                    </div>
 
-        <hr>
+                    <label for="cross_check_review"><strong>Viết câu nhận xét:</strong></label>
+                    <textarea name="cross_check_review" id="cross_check_review" rows="2" style="width: 100%; height: 200px;">{{ ck_data.cross_check_review }}</textarea>
+                
+                </div>
 
-        <div style="text-align: left;">
-            <div>
-                <label for="is_accepted" class="checkbox-label"><strong>Okay or not?</strong></label>
-                <input type="checkbox" id="is_accepted" name="is_accepted" {% if ck_data.is_accepted %}checked{% endif %}>
+                <!-- Submit button -->
+                <div class="submit-btn text-center">
+                    <input type="submit" value="Submit">
+                </div>
+
             </div>
 
-            <label for="cross_check_review"><strong>Viết câu nhận xét:</strong></label>
-            <textarea name="cross_check_review" id="cross_check_review" rows="2" style="width: 100%; height: 200px;">{{ ck_data.cross_check_review }}</textarea>
-        
         </div>
-
-        <!-- Submit button -->
-        <div class="submit-btn text-center">
-            <input type="submit" value="Submit">
-        </div>
-
+    
     </div>
 
 </form>
