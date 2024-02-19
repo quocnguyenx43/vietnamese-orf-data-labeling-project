@@ -91,7 +91,7 @@ def admin():
 
     monitors_results.pop('admin', None)
 
-    real_admin = False
+    real_admin = True
     if request.method == 'POST':
         password_admin = request.form.get('password-admin')
         if password_admin == '869':
@@ -451,7 +451,11 @@ def cross_check():
         ).filter(CrossCheckReviews.recruitment_id == None).filter(Annotation.user_id != current_user_id).all()
         import random
         random.seed(100)
-        random_ann = random.choice(sample)
+        try:
+            random_ann = random.choice(sample)
+        except IndexError:
+            return "Cannot choose any sample from an empty sequence.", 403
+        
         rcmt_id = random_ann[0]
         user_id = random_ann[1]
         # Get data
