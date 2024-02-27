@@ -104,7 +104,9 @@ def admin():
         users=all_users,
         monitors=monitors_results,
         files=current_files,
-        real_admin=real_admin
+        real_admin=real_admin,
+        
+        monitor=generate_cross_checking_monitor(db),
     )
 
 # Admin: Add user handle
