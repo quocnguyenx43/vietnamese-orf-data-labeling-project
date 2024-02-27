@@ -41,9 +41,10 @@ def home():
 
     return render_template(
         "home.html",
-        user=current_user
+        user=current_user,
         # incompleted_ann=incompleted_ann,
         # incompleted_ck=incompleted_ck
+        monitor=generate_cross_checking_monitor(db),
     )
 
 # Home handle
@@ -399,6 +400,8 @@ def annotate():
         rcmt_data=recruitment_data,
         ann_data=annotation_data,
         ck_data=cross_check_data,
+
+        monitor=generate_cross_checking_monitor(db),
     )
 
 # Annotate handle

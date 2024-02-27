@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='logo_uit.ico') }}">
 
     <!-- Bootstrap -->
@@ -16,6 +16,17 @@
     <title>{% block title %}TRANG CHỦ{% endblock %}</title>
 
     <style>
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        
+        .full-screen-div {
+            height: 90vh;
+        }
+
         footer {
             position: absolute; /* Position the footer absolutely at the bottom of the body. */
             left: 0; /* Align the footer to the left edge of the body. */
@@ -166,7 +177,7 @@
         </div>
         {% if user.is_authenticated %}
             <a class="nav-item nav-link" id="logout" href="/logout">ĐĂNG XUẤT</a>
-            <p style="margin-right: 10px;" class="text-white">{{ monitor }}</p>
+            <p style="margin-right: 10px;" class="text-success">Cross-checked: {{ monitor[0] }}; Annotated: {{ monitor[1] }}; Total: {{ monitor[2] }}</p>
             <p id="greeting" class="text-white">
                 <!-- <img style="width: 20px;" src="https://cdn-icons-png.flaticon.com/512/13153/13153684.png" alt="2024 IMG">--> Hi <strong>{{ user.username }}  </strong><i class="fas fa-chevron-down" id="arrow-down"></i>
             </p>
