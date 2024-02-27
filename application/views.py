@@ -105,7 +105,7 @@ def admin():
         monitors=monitors_results,
         files=current_files,
         real_admin=real_admin,
-        
+
         monitor=generate_cross_checking_monitor(db),
     )
 
@@ -237,6 +237,8 @@ def view_data():
         "view_data.html",
         user=current_user,
         data=data,
+        
+        monitor=generate_cross_checking_monitor(db),
     )
 
 
