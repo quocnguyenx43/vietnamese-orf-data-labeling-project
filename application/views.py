@@ -442,7 +442,8 @@ def cross_check():
         try:
             cross_check_data = user_cks.all()[index - 1]
         except:
-            cross_check_data = user_cks.all()[500]
+            cross_check_data = user_cks.all()[len(user_cks.all()) - 1]
+
         rcmt_id = cross_check_data.recruitment_id
         user_id = cross_check_data.validated_user_id
         recruitment_data, annotator_id, index_for_annotator = get_recruitment_data(id=rcmt_id)
