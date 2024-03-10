@@ -421,9 +421,8 @@ def cross_check():
     current_user_id = current_user.id
     
     # Number completed
-    user_cks = CrossCheckReviews.query.filter_by(validator_user_id=current_user_id)
+    user_cks = CrossCheckReviews.query.filter_by(validator_user_id=current_user_id).distinct()
     n_completed = user_cks.count()
-    print(n_completed)
 
     #### Handle GET (modifying)
     if index:
@@ -442,7 +441,7 @@ def cross_check():
         try:
             cross_check_data = user_cks.all()[index - 1]
         except:
-            cross_check_data = user_cks.all()[len(user_cks.all()) - 1]
+            cross_check_data = user_cks.all()[-1]
 
         rcmt_id = cross_check_data.recruitment_id
         user_id = cross_check_data.validated_user_id
