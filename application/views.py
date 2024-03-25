@@ -295,7 +295,8 @@ def annotate():
     current_user_id = current_user.id
 
     # count = Recruitment.query.filter_by(annotator_id=current_user_id).count()
-    count = 500
+    # count = 500
+    count = 1000
     completed_sample = db.session.query(Recruitment.index_for_annotator).join(
         Annotation, Recruitment.id == Annotation.recruitment_id
     ).filter(Recruitment.annotator_id == current_user_id)
