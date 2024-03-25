@@ -70,10 +70,12 @@
         </thead>
         <tbody>
             {% for key, value in monitors.items() %}
-                        <td><strong>{{ key }}</strong></td>
-                        <td>{{ value[0] }}</td>
-                        <td>{{ value[1] }}</td>
-                        <td>{{ value[2] }}</td>
+                <tr>
+                    <td><strong>{{ key }}</strong></td>
+                    <td>{{ value[0] }}</td>
+                    <td>{{ value[1] }}</td>
+                    <td>{{ value[2] }}</td>
+                </tr>
             {% endfor %}
         </tbody>
     </table>
