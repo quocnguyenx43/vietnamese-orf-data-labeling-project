@@ -70,21 +70,10 @@
         </thead>
         <tbody>
             {% for key, value in monitors.items() %}
-                {% if key == 'VQuoc' %}
-                    <tr>
-                        <td><strong>{{ key }}</strong></td>
-                        <td>{{ 500 }}</td>
-                        <td>{{ 25 }}</td>
-                        <td>{{ value[2] }}</td>
-                    </tr>
-                {% else %}
-                    <tr>
                         <td><strong>{{ key }}</strong></td>
                         <td>{{ value[0] }}</td>
                         <td>{{ value[1] }}</td>
                         <td>{{ value[2] }}</td>
-                    </tr>
-                {% endif %}
             {% endfor %}
         </tbody>
     </table>
